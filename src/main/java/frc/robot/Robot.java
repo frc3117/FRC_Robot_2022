@@ -5,13 +5,23 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.System.Climber;
+import frc.robot.System.Drivetrain;
+import frc.robot.System.Feeder;
 
 public class Robot extends TimedRobot 
 {
+  public static Climber Climber;
+  public static Drivetrain Drivetrain;
+  public static Feeder Feeder;
+
   @Override
-  public void robotInit() {}
+  public void robotInit() 
+  {
+    Climber = new Climber();
+    Drivetrain = new Drivetrain();
+    Feeder = new Feeder();
+  }
 
   @Override
   public void robotPeriodic() {}
@@ -23,8 +33,18 @@ public class Robot extends TimedRobot
   public void autonomousPeriodic() {}
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() 
+  {
+    Climber.Init();
+    Drivetrain.Init();
+    Feeder.Init();
+  }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() 
+  {
+    Climber.DoSystem();
+    Drivetrain.DoSystem();
+    Feeder.DoSystem();
+  }
 }

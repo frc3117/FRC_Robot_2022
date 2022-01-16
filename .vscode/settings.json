@@ -14,9 +14,6 @@
     "**/.factorypath": true,
     "**/*~": true
   },
-  "java.project.referencedLibraries": [
-      "libs/*.jar"
-  ],
   "java.test.config": [
     {
       "name": "WPIlibUnitTests",
