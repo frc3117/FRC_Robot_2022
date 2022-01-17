@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.System.Climber;
 import frc.robot.System.Drivetrain;
 import frc.robot.System.Feeder;
+import frc.robot.System.Part.Timer;
 
 public class Robot extends TimedRobot 
 {
@@ -35,6 +36,8 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit() 
   {
+    Timer.Init();
+
     Climber.Init();
     Drivetrain.Init();
     Feeder.Init();
@@ -43,6 +46,8 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic() 
   {
+    Timer.Calculate();
+
     Climber.DoSystem();
     Drivetrain.DoSystem();
     Feeder.DoSystem();
