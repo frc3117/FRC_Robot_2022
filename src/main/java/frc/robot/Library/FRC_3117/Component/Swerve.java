@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
 public class Swerve implements Component {
-    public Swerve(WheelData[] WheelsData)
+    public Swerve(WheelData[] WheelsData, Gyro imu)
     {
         _wheelCount = WheelsData.length;
 
@@ -54,6 +54,8 @@ public class Swerve implements Component {
 
             _directionPID[i] = new AdvancedPID();
         }
+
+        _IMU = imu;
     }
 
     public enum DrivingMode
@@ -117,7 +119,7 @@ public class Swerve implements Component {
 
     public void Init()
     {
-        
+        InitIMU();
     }
 
     public void Disabled()

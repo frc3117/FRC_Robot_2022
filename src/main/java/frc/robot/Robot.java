@@ -3,10 +3,19 @@ package frc.robot;
 import java.util.LinkedHashMap;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Library.FRC_3117.Component.Swerve;
+import frc.robot.Library.FRC_3117.Component.Data.Input;
+import frc.robot.Library.FRC_3117.Component.Data.MotorController;
+import frc.robot.Library.FRC_3117.Component.Data.WheelData;
+import frc.robot.Library.FRC_3117.Component.Data.MotorController.MotorControllerType;
+import frc.robot.Library.FRC_3117.Component.Data.Tupple.Pair;
+import frc.robot.Library.FRC_3117.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117.Interface.Component;
 import frc.robot.Library.FRC_3117.Math.Timer;
+import frc.robot.Wrapper.ADIS16448_IMU_Gyro;
 
 public class Robot extends TimedRobot {
 
@@ -106,12 +115,34 @@ public class Robot extends TimedRobot {
 
   public void CreateComponentInstance()
   {
+    var wheelsData = new WheelData[] {
+      new WheelData(new MotorController(MotorControllerType.TalonFX, 20, true), new MotorController(MotorControllerType.SparkMax, 17, true), new Pair<>(0, 0), 0, new Vector2d(1, 1), 0),
+      new WheelData(new MotorController(MotorControllerType.TalonFX, 21, true), new MotorController(MotorControllerType.SparkMax, 15, true), new Pair<>(0, 0), 1, new Vector2d(-1, -1), 0),
+      new WheelData(new MotorController(MotorControllerType.TalonFX, 22, true), new MotorController(MotorControllerType.SparkMax, 14, true), new Pair<>(0, 0), 2, new Vector2d(1, -1), 0),
+      new WheelData(new MotorController(MotorControllerType.TalonFX, 23, true), new MotorController(MotorControllerType.SparkMax, 18, true), new Pair<>(0, 0), 3, new Vector2d(-1, 1), 0)
+    };
 
+    var swerve = new Swerve(wheelsData, new ADIS16448_IMU_Gyro());
+    swerve.SetPIDGain(0, 1, 0, 0);
+    swerve.SetPIDGain(1, 1, 0, 0);
+    swerve.SetPIDGain(2, 1, 0, 0);
+    swerve.SetPIDGain(3, 1, 0, 0);
+
+    swerve.SetCurrentMode(DrivingMode.World);
+
+    AddComponent("Swerve", swerve);
   }
 
   public void CreateInput()
   {
+    Input.CreateAxis("Horizontal", 0, 0, false);
+    Input.CreateAxis("Vertical", 0, 1, true);
+    Input.CreateAxis("Rotation", 0, 2, false);
+    Input.SetAxisNegative("Rotation", 0, 3, false);
 
+    Input.SetAxisDeadzone("Horizontal", 0.15);
+    Input.SetAxisDeadzone("Vertical", 0.15);
+    Input.SetAxisDeadzone("Rotation", 0.15);
   }
 
   public void Init()
