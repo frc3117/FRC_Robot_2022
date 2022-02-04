@@ -347,16 +347,15 @@ public class Swerve implements Component {
     int f = 0;
     public void DoComponent()
     {
-        /*
-        Robot.Println("(0): " + ((_directionEncoder[0].getValue() / 4096f) * 2 * 3.1415f));
-        Robot.Println("(1): " + ((_directionEncoder[1].getValue() / 4096f) * 2 * 3.1415f));
+        
+        //System.out.println("(0): " + ((_directionEncoder[0].getValue() / 4096f) * 2 * 3.1415f));
+        //System.out.println("(1): " + ((_directionEncoder[1].getValue() / 4096f) * 2 * 3.1415f));
 
-        Robot.Println("(2): " + ((_directionEncoder[2].getValue() / 4096f) * 2 * 3.1415f));
-        Robot.Println("(3): " + ((_directionEncoder[3].getValue() / 4096f) * 2 * 3.1415f));
-        */
-
+        //System.out.println("(2): " + ((_directionEncoder[2].getValue() / 4096f) * 2 * 3.1415f));
+        //System.out.println("(3): " + ((_directionEncoder[3].getValue() / 4096f) * 2 * 3.1415f));
+       
         double dt = Timer.GetDeltaTime();
-
+ 
         switch(_mode)
         {
             case Local:
