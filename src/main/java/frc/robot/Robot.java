@@ -138,6 +138,7 @@ public class Robot extends TimedRobot {
     Input.CreateAxis("Horizontal", 0, 0, false);
     Input.CreateAxis("Vertical", 0, 1, true);
     Input.CreateAxis("Rotation", 0, 2, false);
+
     Input.SetAxisNegative("Rotation", 0, 3, false);
 
     Input.SetAxisDeadzone("Horizontal", 0.15);
@@ -147,6 +148,7 @@ public class Robot extends TimedRobot {
 
   public void Init()
   {
+    Timer.Init();
     for(var component : _componentList.values())
     {
       component.Init();
@@ -158,7 +160,6 @@ public class Robot extends TimedRobot {
   public void ComponentLoop()
   {
     Timer.Evaluate();
-
     for(var component : _componentList.values())
     {
       component.DoComponent();

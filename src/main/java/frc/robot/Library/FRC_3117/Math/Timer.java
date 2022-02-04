@@ -40,7 +40,7 @@ public class Timer
     {
         //Estimate the delta time betwen the last time
         var currentTime = GetCurrentTime();
-        _dt = (currentTime - _lastTime) / 1e9;
+        _dt = (currentTime - _lastTime);
         _lastTime = currentTime; 
 
         _frameCount++;
@@ -120,5 +120,12 @@ public class Timer
     public static void ScheduleEvent(double time, Action callback)
     {
         _scheduledEvents.add(new Pair<Double,Action>(time + GetCurrentTime(), callback));
+    }
+    /**
+     * Clear the events list
+     */
+    public static void ClearEvents()
+    {
+        _scheduledEvents.clear();
     }
 }
