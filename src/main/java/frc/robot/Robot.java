@@ -2,19 +2,24 @@ package frc.robot;
 
 import java.util.LinkedHashMap;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Library.FRC_3117.Component.Swerve;
 import frc.robot.Library.FRC_3117.Component.Data.Input;
+import frc.robot.Library.FRC_3117.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117.Component.Data.MotorController;
 import frc.robot.Library.FRC_3117.Component.Data.WheelData;
 import frc.robot.Library.FRC_3117.Component.Data.MotorController.MotorControllerType;
+import frc.robot.Library.FRC_3117.Component.Data.MotorControllerGroup;
 import frc.robot.Library.FRC_3117.Component.Data.Tupple.Pair;
 import frc.robot.Library.FRC_3117.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117.Interface.Component;
+import frc.robot.Library.FRC_3117.Math.AdvancedPID;
 import frc.robot.Library.FRC_3117.Math.Timer;
+import frc.robot.System.Shooter;
 import frc.robot.Wrapper.ADIS16448_IMU_Gyro;
 
 public class Robot extends TimedRobot {
@@ -115,18 +120,12 @@ public class Robot extends TimedRobot {
 
   public void CreateComponentInstance()
   {
-   
-    var wheelsData = new WheelData[] {
+    var wheelsData = new WheelData[] 
+    {
       new WheelData(new MotorController(MotorControllerType.TalonFX, 22, true), new MotorController(MotorControllerType.SparkMax, 16, true), new Pair<>(0, 0), 1, new Vector2d(-0.62320, 0.78206), 0.17640258),
       new WheelData(new MotorController(MotorControllerType.TalonFX, 23, true), new MotorController(MotorControllerType.SparkMax, 15, true), new Pair<>(0, 0), 2, new Vector2d(0.62320, 0.78206), 5.1831684 - Math.PI),
       new WheelData(new MotorController(MotorControllerType.TalonFX, 21, true), new MotorController(MotorControllerType.SparkMax, 17, true), new Pair<>(0, 0), 3, new Vector2d(0.62320, -0.78206), 4.19378 - Math.PI),
       new WheelData(new MotorController(MotorControllerType.TalonFX, 20, true), new MotorController(MotorControllerType.SparkMax, 14, true), new Pair<>(0, 0), 0, new Vector2d(-0.62320, -0.78206), 3.2458076)
-    /*  new WheelData(new MotorController(MotorControllerType.TalonFX, 22, true), new MotorController(MotorControllerType.SparkMax, 16, true), new Pair<>(0, 0), 1, new Vector2d(0.78206, 0.62320), 0.17640258),
-      new WheelData(new MotorController(MotorControllerType.TalonFX, 23, true), new MotorController(MotorControllerType.SparkMax, 15, true), new Pair<>(0, 0), 2, new Vector2d(-0.78206, 0.62320), 5.1831684 - Math.PI),
-      new WheelData(new MotorController(MotorControllerType.TalonFX, 21, true), new MotorController(MotorControllerType.SparkMax, 17, true), new Pair<>(0, 0), 3, new Vector2d(-0.78206, -0.62320), 4.19378 - Math.PI),
-      new WheelData(new MotorController(MotorControllerType.TalonFX, 20, true), new MotorController(MotorControllerType.SparkMax, 14, true), new Pair<>(0, 0), 0, new Vector2d(0.78206, -0.62320), 3.2458076)
-    
-    */
     };
 
     var swerve = new Swerve(wheelsData, new ADIS16448_IMU_Gyro());
@@ -137,9 +136,17 @@ public class Robot extends TimedRobot {
 
     swerve.SetCurrentMode(DrivingMode.World);
 
+    var shooterMotorGroup = new MotorControllerGroup();
+    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.TalonFX, 0,true));
+    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.TalonFX, 0,true));
+
+    var shooterEncoder = new Encoder(0, 1);
+    var shooterPID = new AdvancedPID(1, 0, 0, "Shooter");
+
+    var shooter = new Shooter(shooterMotorGroup, shooterEncoder, shooterPID);
+
     AddComponent("Swerve", swerve);
-    
-   
+    AddComponent("Shooter", shooter);
   }
 
   public void CreateInput()
@@ -153,11 +160,15 @@ public class Robot extends TimedRobot {
     Input.SetAxisDeadzone("Horizontal", 0.15);
     Input.SetAxisDeadzone("Vertical", 0.15);
     Input.SetAxisDeadzone("Rotation", 0.15);
+
+    Input.CreateButton("Shooter", 0, 0);
   }
 
   public void Init()
   {
     Timer.Init();
+    InputManager.Init();
+
     for(var component : _componentList.values())
     {
       component.Init();
@@ -169,6 +180,8 @@ public class Robot extends TimedRobot {
   public void ComponentLoop()
   {
     Timer.Evaluate();
+    InputManager.DoInputManager();
+
     for(var component : _componentList.values())
     {
       component.DoComponent();
