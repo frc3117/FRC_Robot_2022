@@ -137,8 +137,8 @@ public class Robot extends TimedRobot {
     swerve.SetCurrentMode(DrivingMode.World);
 
     var shooterMotorGroup = new MotorControllerGroup();
-    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.TalonFX, 0,true));
-    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.TalonFX, 0,true));
+    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.TalonFX, 27, true));
+    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.TalonFX, 39, true));
 
     var shooterEncoder = new Encoder(0, 1);
     var shooterPID = new AdvancedPID(1, 0, 0, "Shooter");
