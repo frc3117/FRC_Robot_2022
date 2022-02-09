@@ -1,6 +1,8 @@
 package frc.robot.System;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Library.FRC_3117.Component.Data.Input;
 import frc.robot.Library.FRC_3117.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117.Component.Data.MotorControllerGroup;
 import frc.robot.Library.FRC_3117.Interface.BaseController;
@@ -42,19 +44,24 @@ public class Shooter implements Component
     @Override
     public void DoComponent()
     {
+        var currentSpeed = (_shooterEncoder.getRate() / 2048) * 60;
+        SmartDashboard.putNumber("shooterRPM", currentSpeed);
+
+        _motorGroup.Set(InputManager.GetAxis("Rotation") * -1); 
+
+        /*
         if (InputManager.GetButton("Shooter"))
-            _targerRPM = 3000;
+            _targerRPM = 30000;
         else
             _targerRPM = 0;
 
         if (_targerRPM > 0)
         {
-            var currentSpeed = (_shooterEncoder.getRate() / 2048) * 60;
             var error = _targerRPM - currentSpeed;
             
             _motorGroup.Set(_shooterController.Evaluate(error));
         }
         else
-        _motorGroup.Set(0);
+            _motorGroup.Set(0);*/
     }    
 }

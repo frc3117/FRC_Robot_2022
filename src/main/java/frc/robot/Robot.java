@@ -18,6 +18,7 @@ import frc.robot.Library.FRC_3117.Component.Data.Tupple.Pair;
 import frc.robot.Library.FRC_3117.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117.Interface.Component;
 import frc.robot.Library.FRC_3117.Math.AdvancedPID;
+import frc.robot.Library.FRC_3117.Math.BangBang;
 import frc.robot.Library.FRC_3117.Math.Timer;
 import frc.robot.System.Shooter;
 import frc.robot.Wrapper.ADIS16448_IMU_Gyro;
@@ -120,7 +121,7 @@ public class Robot extends TimedRobot {
 
   public void CreateComponentInstance()
   {
-    var wheelsData = new WheelData[] 
+    /*var wheelsData = new WheelData[] 
     {
       new WheelData(new MotorController(MotorControllerType.TalonFX, 22, true), new MotorController(MotorControllerType.SparkMax, 16, true), new Pair<>(0, 0), 1, new Vector2d(-0.62320, 0.78206), 0.17640258),
       new WheelData(new MotorController(MotorControllerType.TalonFX, 23, true), new MotorController(MotorControllerType.SparkMax, 15, true), new Pair<>(0, 0), 2, new Vector2d(0.62320, 0.78206), 5.1831684 - Math.PI),
@@ -134,18 +135,19 @@ public class Robot extends TimedRobot {
     swerve.SetPIDGain(2, 1, 0, 0);
     swerve.SetPIDGain(3, 1, 0, 0);
 
-    swerve.SetCurrentMode(DrivingMode.World);
+    swerve.SetCurrentMode(DrivingMode.World);*/
 
     var shooterMotorGroup = new MotorControllerGroup();
     shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax,6, true));
     shooterMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax,4, true));
 
     var shooterEncoder = new Encoder(0, 1);
-    var shooterPID = new AdvancedPID(1, 0, 0, "Shooter");
+    //var shooterPID = new AdvancedPID(0.001, 0, 0, "Shooter");
+    var shooterBangBang = new BangBang(0, 0, 1);
 
-    var shooter = new Shooter(shooterMotorGroup, shooterEncoder, shooterPID);
+    var shooter = new Shooter(shooterMotorGroup, shooterEncoder, shooterBangBang);
 
-    AddComponent("Swerve", swerve);
+    //AddComponent("Swerve", swerve);
     AddComponent("Shooter", shooter);
   }
 
