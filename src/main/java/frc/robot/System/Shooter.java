@@ -54,5 +54,7 @@ public class Shooter implements Component
             
             _motorGroup.Set(_shooterController.Evaluate(error));
         }
+        else
+        _motorGroup.Set(0);
     }    
 }
