@@ -46,12 +46,11 @@ public class Shooter implements Component
     {
         var currentSpeed = (_shooterEncoder.getRate() / 2048) * 60;
         SmartDashboard.putNumber("shooterRPM", currentSpeed);
+        
+        _shooterController.SetFeedForward(_targerRPM * 0.00015);
 
-        _motorGroup.Set(InputManager.GetAxis("Rotation") * -1); 
-
-        /*
         if (InputManager.GetButton("Shooter"))
-            _targerRPM = 30000;
+            _targerRPM = 3000;
         else
             _targerRPM = 0;
 
@@ -62,6 +61,7 @@ public class Shooter implements Component
             _motorGroup.Set(_shooterController.Evaluate(error));
         }
         else
-            _motorGroup.Set(0);*/
+            _motorGroup.Set(0);
+            
     }    
 }

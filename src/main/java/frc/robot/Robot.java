@@ -1,7 +1,6 @@
 package frc.robot;
 
 import java.util.LinkedHashMap;
-
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.Vector2d;
@@ -19,6 +18,7 @@ import frc.robot.Library.FRC_3117.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117.Interface.Component;
 import frc.robot.Library.FRC_3117.Math.AdvancedPID;
 import frc.robot.Library.FRC_3117.Math.BangBang;
+import frc.robot.Library.FRC_3117.Math.SimplePID;
 import frc.robot.Library.FRC_3117.Math.Timer;
 import frc.robot.System.Shooter;
 import frc.robot.Wrapper.ADIS16448_IMU_Gyro;
@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
   private boolean _hasBeenInit;
 
   @Override
-  public void robotInit() 
+  public void robotInit()
   {
     instance = this;
 
@@ -95,6 +95,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() 
   {
+
     ComponentLoop();
   }
 
@@ -142,10 +143,10 @@ public class Robot extends TimedRobot {
     shooterMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax,4, true));
 
     var shooterEncoder = new Encoder(0, 1);
-    //var shooterPID = new AdvancedPID(0.001, 0, 0, "Shooter");
-    var shooterBangBang = new BangBang(0, 0, 1);
+    var shooterPID = new SimplePID(0.001, 0, 0, "Shooter");
+    //var shooterBangBang = new BangBang(0, 0, 1);
 
-    var shooter = new Shooter(shooterMotorGroup, shooterEncoder, shooterBangBang);
+    var shooter = new Shooter(shooterMotorGroup, shooterEncoder, shooterPID);
 
     //AddComponent("Swerve", swerve);
     AddComponent("Shooter", shooter);
