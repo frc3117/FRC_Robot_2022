@@ -8,9 +8,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.Library.FRC_3117.Component.Data.MotorController;
-import frc.robot.Library.FRC_3117.Interface.Component;
-import frc.robot.Library.FRC_3117.Math.Timer;
+import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
+import frc.robot.Library.FRC_3117_Tools.Interface.Component;
+import frc.robot.Library.FRC_3117_Tools.Math.Timer;
 
 public class Conveyor implements Component
 {
