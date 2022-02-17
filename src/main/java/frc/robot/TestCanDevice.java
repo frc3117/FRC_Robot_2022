@@ -31,12 +31,16 @@ public class TestCanDevice
 
     public void Open()
     {
-        _can = new CAN(_deviceID);
+        if (!IsOpen())
+            _can = new CAN(_deviceID);
     }
     public void Close()
     {
-        _can.close();
-        _can = null;
+        if (IsOpen())
+        {
+            _can.close();
+            _can = null;
+        }
     }
 
     public boolean IsOpen()

@@ -2,7 +2,6 @@ package frc.robot.System;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorControllerGroup;
 import frc.robot.Library.FRC_3117_Tools.Interface.BaseController;
