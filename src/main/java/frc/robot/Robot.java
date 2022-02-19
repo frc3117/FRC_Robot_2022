@@ -95,7 +95,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() 
   {
-    System.out.println(_canDevice.GetNumber());
     ComponentLoop();
   }
 
@@ -120,10 +119,8 @@ public class Robot extends TimedRobot {
 
   }
 
-  private TestCanDevice _canDevice;
   public void CreateComponentInstance()
   {
-    _canDevice = new TestCanDevice(1);
     /*var wheelsData = new WheelData[] 
     {
       new WheelData(new MotorController(MotorControllerType.TalonFX, 22, true), new MotorController(MotorControllerType.SparkMax, 16, true), new Pair<>(0, 0), 1, new Vector2d(-0.62320, 0.78206), 0.17640258),
