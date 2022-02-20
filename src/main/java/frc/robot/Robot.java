@@ -1,12 +1,15 @@
 package frc.robot;
 
 import java.util.LinkedHashMap;
+import java.util.Random;
+
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve;
+import frc.robot.Library.FRC_3117_Tools.Component.CAN.ServoCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
@@ -88,8 +91,17 @@ public class Robot extends TimedRobot {
       Init();
     }
 
+    _servo.SetAngle(0);
+    Timer.ScheduleEvent(1, this::Loop);
+
     //Reset the init state for the next time the robot is eneabled
     _hasBeenInit = false;
+  }
+
+  private void Loop()
+  {
+    Timer.ScheduleEvent(1, this::Loop);
+    _servo.SetAngle(new Random().nextInt() * 180);
   }
 
   @Override
@@ -101,6 +113,8 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit()
   {
+    Timer.ClearEvents();
+
     for(var component : _componentList.values())
     {
       component.Disabled();
@@ -119,6 +133,7 @@ public class Robot extends TimedRobot {
 
   }
 
+  private ServoCAN _servo;
   public void CreateComponentInstance()
   {
     /*var wheelsData = new WheelData[] 
@@ -146,6 +161,8 @@ public class Robot extends TimedRobot {
     //var shooterBangBang = new BangBang(0, 0, 1);
 
     var shooter = new Shooter(shooterMotorGroup, shooterEncoder, shooterPID);
+
+    _servo = new ServoCAN(1);
 
     //AddComponent("Swerve", swerve);
     AddComponent("Shooter", shooter);
