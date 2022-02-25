@@ -1,7 +1,6 @@
 package frc.robot;
 
 import java.util.LinkedHashMap;
-import java.util.Random;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -9,7 +8,6 @@ import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve;
-import frc.robot.Library.FRC_3117_Tools.Component.CAN.ServoCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
@@ -19,8 +17,6 @@ import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorControllerGroup;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Tupple.Pair;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
-import frc.robot.Library.FRC_3117_Tools.Math.AdvancedPID;
-import frc.robot.Library.FRC_3117_Tools.Math.BangBang;
 import frc.robot.Library.FRC_3117_Tools.Math.SimplePID;
 import frc.robot.Library.FRC_3117_Tools.Math.Timer;
 import frc.robot.System.Shooter;
@@ -91,17 +87,8 @@ public class Robot extends TimedRobot {
       Init();
     }
 
-    _servo.SetAngle(0);
-    Timer.ScheduleEvent(1, this::Loop);
-
     //Reset the init state for the next time the robot is eneabled
     _hasBeenInit = false;
-  }
-
-  private void Loop()
-  {
-    Timer.ScheduleEvent(1, this::Loop);
-    _servo.SetAngle(new Random().nextInt() * 180);
   }
 
   @Override
@@ -133,10 +120,9 @@ public class Robot extends TimedRobot {
 
   }
 
-  private ServoCAN _servo;
   public void CreateComponentInstance()
   {
-    /*var wheelsData = new WheelData[] 
+    var wheelsData = new WheelData[] 
     {
       new WheelData(new MotorController(MotorControllerType.TalonFX, 22, true), new MotorController(MotorControllerType.SparkMax, 16, true), new Pair<>(0, 0), 1, new Vector2d(-0.62320, 0.78206), 0.17640258),
       new WheelData(new MotorController(MotorControllerType.TalonFX, 23, true), new MotorController(MotorControllerType.SparkMax, 15, true), new Pair<>(0, 0), 2, new Vector2d(0.62320, 0.78206), 5.1831684 - Math.PI),
@@ -150,7 +136,7 @@ public class Robot extends TimedRobot {
     swerve.SetPIDGain(2, 1, 0, 0);
     swerve.SetPIDGain(3, 1, 0, 0);
 
-    swerve.SetCurrentMode(DrivingMode.World);*/
+    swerve.SetCurrentMode(DrivingMode.World);
 
     var shooterMotorGroup = new MotorControllerGroup();
     shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax,6, true));
@@ -158,13 +144,10 @@ public class Robot extends TimedRobot {
 
     var shooterEncoder = new Encoder(0, 1);
     var shooterPID = new SimplePID(0.001, 0, 0, "Shooter");
-    //var shooterBangBang = new BangBang(0, 0, 1);
 
     var shooter = new Shooter(shooterMotorGroup, shooterEncoder, shooterPID);
 
-    _servo = new ServoCAN(1);
-
-    //AddComponent("Swerve", swerve);
+    AddComponent("Swerve", swerve);
     AddComponent("Shooter", shooter);
   }
 
