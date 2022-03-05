@@ -136,16 +136,19 @@ public class Robot extends TimedRobot {
     swerve.SetPIDGain(2, 1, 0, 0);
     swerve.SetPIDGain(3, 1, 0, 0);
 
-    swerve.SetCurrentMode(DrivingMode.World);
+    swerve.SetCurrentMode(DrivingMode.Local);
 
     var shooterMotorGroup = new MotorControllerGroup();
     shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax,6, true));
     shooterMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax,4, true));
 
+    var shooterIntakeMotor = new MotorController(MotorControllerType.TalonSRX, 6, false);
+
     var shooterEncoder = new Encoder(0, 1);
     var shooterPID = new SimplePID(0.001, 0, 0, "Shooter");
+    var directionPID = new SimplePID(0.03, 0, 0.002, "Direction");
 
-    var shooter = new Shooter(shooterMotorGroup, shooterEncoder, shooterPID);
+    var shooter = new Shooter(shooterMotorGroup, shooterIntakeMotor, shooterEncoder, shooterPID, directionPID);
 
     AddComponent("Swerve", swerve);
     AddComponent("Shooter", shooter);
@@ -164,6 +167,7 @@ public class Robot extends TimedRobot {
     Input.SetAxisDeadzone("Rotation", 0.15);
 
     Input.CreateButton("Shooter", 0, 1);
+    Input.CreateButton("Align", 0, 2);
   }
 
   public void Init()
