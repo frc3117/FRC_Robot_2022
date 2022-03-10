@@ -15,6 +15,7 @@ import frc.robot.Library.FRC_3117_Tools.Component.Data.WheelData;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController.MotorControllerType;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorControllerGroup;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Tupple.Pair;
+import frc.robot.Library.FRC_3117_Tools.Component.FRC_Robot_Server.RobotServerClient;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
 import frc.robot.Library.FRC_3117_Tools.Math.SimplePID;
@@ -30,6 +31,7 @@ public class Robot extends TimedRobot {
   }
 
   public static Robot instance;
+  public static RobotServerClient serverClient;
   public static AutonomousMode currentAutonomous;
 
   private SendableChooser<AutonomousMode> _autoChooser;
@@ -57,6 +59,12 @@ public class Robot extends TimedRobot {
     {
       component.Awake();
     }
+    
+    serverClient = new RobotServerClient("jetson3117.local");
+    serverClient.Connect(() -> 
+    {
+      serverClient.Register("rio");
+    });
   }
 
   @Override
