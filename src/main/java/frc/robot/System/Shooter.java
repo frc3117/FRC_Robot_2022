@@ -1,6 +1,8 @@
 package frc.robot.System;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Library.FRC_3117_Tools.Component.LimeLight;
@@ -15,13 +17,17 @@ import frc.robot.Library.FRC_3117_Tools.Math.MovingAverage;
 
 public class Shooter implements Component
 {
-    public Shooter(MotorControllerGroup motorGroup, MotorController shooterIntakeMotor, Encoder shooterEncoder, BaseController shooterController, BaseController directionController)
+    public Shooter(MotorControllerGroup motorGroup, MotorController shooterIntakeMotor, MotorController shooterAngleMotor, Encoder shooterEncoder, BaseController shooterController, BaseController directionController)
     {
         _motorGroup = motorGroup;
         _shooterIntakeMotor = shooterIntakeMotor;
+        _shooterAngleMotor = shooterAngleMotor;
         _shooterEncoder = shooterEncoder;
         _shooterController = shooterController;
         _directionController = directionController;
+
+        _shooterAngleBotomLimit = new DigitalInput(8);
+        _shooterAngleTopLimit = new DigitalInput(9);
 
         _errorMovingAverageFeedforward = new MovingAverage(15);
         _shooterInputMovingAverage = new MovingAverage(60);
@@ -30,13 +36,17 @@ public class Shooter implements Component
     private Encoder _shooterEncoder;
     private MotorControllerGroup _motorGroup;
     private MotorController _shooterIntakeMotor;
+    private MotorController _shooterAngleMotor;
     private BaseController _shooterController;
     private BaseController _directionController;
+    private DigitalInput _shooterAngleTopLimit;
+    private DigitalInput _shooterAngleBotomLimit;
 
     private MovingAverage _shooterInputMovingAverage;
 
     private boolean _isAllign;
     private int _targerRPM;
+    private double _shooterTargetAngle;
 
     private double _currentFeedforwardCalculation;
     private int _frameTotalFeedforwardCalculation;
@@ -47,12 +57,16 @@ public class Shooter implements Component
 
     private Swerve _swerve;
 
+    private Joystick _tempJoystock;
+
     @Override
     public void Awake() 
     {
         _motorGroup.SetBrake(false);
 
         _swerve = Robot.GetComponent("Swerve");
+
+        _tempJoystock = new Joystick(0);
     }
 
     @Override
@@ -91,18 +105,39 @@ public class Shooter implements Component
             }
         }
 
+        switch (_tempJoystock.getPOV())
+        {
+            case 0:
+                if (!_shooterAngleTopLimit.get())
+                    _shooterAngleMotor.Set(0.25);
+                else
+                    _shooterAngleMotor.Set(0);
+                break;
+
+            case 180:
+                if (!_shooterAngleBotomLimit.get())
+                    _shooterAngleMotor.Set(-0.17);
+                else
+                    _shooterAngleMotor.Set(0);
+                break;
+
+            default:
+                _shooterAngleMotor.Set(0);
+                break;
+        }
+
         if (!_isfeedforwardCalculation)
         {
             _shooterController.SetFeedForward(_targerRPM * 0.00015);
 
             if (InputManager.GetButton("Shooter"))
             {
-                _targerRPM = 3000;
+                SetShooterRPM(3000);
                 _shooterInputMovingAverage.Evaluate(1);
             }
             else
             {
-                _targerRPM = 0;
+                SetShooterRPM(0);
                 _shooterInputMovingAverage.Evaluate(0);
             }
 
@@ -115,7 +150,7 @@ public class Shooter implements Component
                 else
                     _shooterIntakeMotor.Set(0);
 
-                _motorGroup.Set(_shooterController.Evaluate(error));
+                _motorGroup.Set(_shooterController.Evaluate(error) * -1);
             }
             else
             {
@@ -139,7 +174,7 @@ public class Shooter implements Component
                 _feedforwardCalculationLogger.SetValue("RPM", _targerRPM);
                 _feedforwardCalculationLogger.SetValue("Integral", -9999);
 
-                _targerRPM += 100;
+                SetShooterRPM(_targerRPM + 100);
                 _errorMovingAverageFeedforward.Clear();
             }
             else if (Math.abs(_errorMovingAverageFeedforward.GetCurrent()) <= 250 )
@@ -148,7 +183,7 @@ public class Shooter implements Component
                 _feedforwardCalculationLogger.SetValue("RPM", _targerRPM);
                 _feedforwardCalculationLogger.SetValue("Integral", _currentFeedforwardCalculation);
 
-                _targerRPM += 100;
+                SetShooterRPM(_targerRPM + 100);
                 _errorMovingAverageFeedforward.Clear();
             }
 
@@ -173,11 +208,19 @@ public class Shooter implements Component
         _errorMovingAverageFeedforward.Clear();
         _isfeedforwardCalculation = true;
     }
-
     public void StopFeedforwardCalculator()
     {
         _feedforwardCalculationLogger.SaveToFile("FeedforwardCalculation");
 
         _isfeedforwardCalculation = false;
+    }
+
+    public void SetShooterRPM(int targetRPM)
+    {
+        _targerRPM = targetRPM;
+    }
+    public void SetShooterAngle(double targetAngle)
+    {
+        _shooterTargetAngle = targetAngle;
     }
 }

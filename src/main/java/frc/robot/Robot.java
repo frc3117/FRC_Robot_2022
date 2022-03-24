@@ -20,6 +20,8 @@ import frc.robot.Library.FRC_3117_Tools.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
 import frc.robot.Library.FRC_3117_Tools.Math.SimplePID;
 import frc.robot.Library.FRC_3117_Tools.Math.Timer;
+import frc.robot.System.ConveyorBelt;
+import frc.robot.System.Feeder;
 import frc.robot.System.Shooter;
 import frc.robot.Wrapper.ADIS16448_IMU_Gyro;
 
@@ -60,10 +62,15 @@ public class Robot extends TimedRobot {
       component.Awake();
     }
     
-    serverClient = new RobotServerClient("jetson3117.local");
+    serverClient = new RobotServerClient("10.31.17.14");
     serverClient.Connect(() -> 
     {
       serverClient.Register("rio");
+
+      serverClient.Subscribe("imu", x ->
+      {
+        System.out.println(x.Data);
+      });
     });
   }
 
@@ -130,6 +137,7 @@ public class Robot extends TimedRobot {
 
   public void CreateComponentInstance()
   {
+    //Swerve
     var wheelsData = new WheelData[] 
     {
       new WheelData(new MotorController(MotorControllerType.TalonFX, 22, true), new MotorController(MotorControllerType.SparkMax, 16, true), new Pair<>(0, 0), 1, new Vector2d(-0.62320, 0.78206), 0.17640258),
@@ -146,20 +154,42 @@ public class Robot extends TimedRobot {
 
     swerve.SetCurrentMode(DrivingMode.Local);
 
+    //Shooter
     var shooterMotorGroup = new MotorControllerGroup();
-    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax,6, true));
-    shooterMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax,4, true));
+    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax, 6, true));
+    shooterMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax, 4, true));
 
-    var shooterIntakeMotor = new MotorController(MotorControllerType.TalonSRX, 6, false);
+    var shooterIntakeMotor = new MotorController(MotorControllerType.TalonSRX, 3, false);
+    shooterIntakeMotor.SetInverted(true);
+
+    var shooterAngleMotor = new MotorController(MotorControllerType.TalonSRX, 2, false);
+    shooterAngleMotor.SetBrake(true);
+    shooterAngleMotor.SetInverted(true);
 
     var shooterEncoder = new Encoder(0, 1);
     var shooterPID = new SimplePID(0.001, 0, 0, "Shooter");
     var directionPID = new SimplePID(0.03, 0, 0.002, "Direction");
 
-    var shooter = new Shooter(shooterMotorGroup, shooterIntakeMotor, shooterEncoder, shooterPID, directionPID);
+    var shooter = new Shooter(shooterMotorGroup, shooterIntakeMotor, shooterAngleMotor,shooterEncoder, shooterPID, directionPID);
+    
+    //Conveyor
+    var towerConveyorMotor = new MotorController(MotorControllerType.SparkMax, 5, true);
+
+    var towerConveyorEncoder = new Encoder(2, 3);
+    var towerConveyorPID = new SimplePID(0.001, 0, 0, "TowerConveyor");
+
+    var conveyor = new ConveyorBelt(towerConveyorMotor, towerConveyorPID, towerConveyorEncoder);
+
+    //Feeder
+    var feederAngleMotor = new MotorController(MotorControllerType.SparkMax, 10, true);
+    feederAngleMotor.SetInverted(true);
+
+    var feeder = new Feeder(feederAngleMotor);
 
     AddComponent("Swerve", swerve);
     AddComponent("Shooter", shooter);
+    AddComponent("Conveyor", conveyor);
+    AddComponent("Feeder", feeder);
   }
 
   public void CreateInput()
@@ -176,6 +206,12 @@ public class Robot extends TimedRobot {
 
     Input.CreateButton("Shooter", 0, 1);
     Input.CreateButton("Align", 0, 2);
+
+    Input.CreateButton("ConveyorBackward", 0, 5);
+    Input.CreateButton("ConveyorForward", 0, 6);
+
+    Input.CreateButton("FeederUpAnalog", 1, 6);
+    Input.CreateButton("FeederDownAnalog", 1, 5);
   }
 
   public void Init()
