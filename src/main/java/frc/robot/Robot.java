@@ -23,6 +23,12 @@ import frc.robot.Library.FRC_3117_Tools.Math.Timer;
 import frc.robot.System.ConveyorBelt;
 import frc.robot.System.Feeder;
 import frc.robot.System.Shooter;
+import frc.robot.System.Data.ConveyorData;
+import frc.robot.System.Data.FeederData;
+import frc.robot.System.Data.ShooterData;
+import frc.robot.System.Data.Internal.ConveyorDataInternal;
+import frc.robot.System.Data.Internal.FeederDataInternal;
+import frc.robot.System.Data.Internal.ShooterDataInternal;
 import frc.robot.Wrapper.ADIS16448_IMU_Gyro;
 
 public class Robot extends TimedRobot {
@@ -153,43 +159,47 @@ public class Robot extends TimedRobot {
     swerve.SetPIDGain(3, 1, 0, 0);
 
     swerve.SetCurrentMode(DrivingMode.Local);
+    AddComponent("Swerve", swerve);
 
     //Shooter
-    var shooterMotorGroup = new MotorControllerGroup();
-    shooterMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax, 6, true));
-    shooterMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax, 4, true));
+    var shooterData = new ShooterData();
+    var shooterDataInternal = new ShooterDataInternal();
 
-    var shooterIntakeMotor = new MotorController(MotorControllerType.TalonSRX, 3, false);
-    shooterIntakeMotor.SetInverted(true);
+    shooterData.SpeedMotorGroup = new MotorControllerGroup();
+    shooterData.SpeedMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax, 6, true));
+    shooterData.SpeedMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax, 4, true));
 
-    var shooterAngleMotor = new MotorController(MotorControllerType.TalonSRX, 2, false);
-    shooterAngleMotor.SetBrake(true);
-    shooterAngleMotor.SetInverted(true);
+    shooterData.IntakeMotor = new MotorController(MotorControllerType.TalonSRX, 3, false);
+    shooterData.IntakeMotor.SetInverted(true);
 
-    var shooterEncoder = new Encoder(0, 1);
-    var shooterPID = new SimplePID(0.001, 0, 0, "Shooter");
-    var directionPID = new SimplePID(0.03, 0, 0.002, "Direction");
+    shooterData.AngleMotor = new MotorController(MotorControllerType.TalonSRX, 2, false);
+    shooterData.AngleMotor.SetBrake(true);
+    shooterData.AngleMotor.SetInverted(true);
 
-    var shooter = new Shooter(shooterMotorGroup, shooterIntakeMotor, shooterAngleMotor,shooterEncoder, shooterPID, directionPID);
+    shooterData.SpeedEncoder = new Encoder(0, 1);
+    shooterData.SpeedController = new SimplePID(0.001, 0, 0, "Shooter");
+    shooterData.DirectionController = new SimplePID(0.03, 0, 0.002, "Direction");
+
+    AddComponent("Shooter", new Shooter(shooterData, shooterDataInternal));
     
     //Conveyor
-    var towerConveyorMotor = new MotorController(MotorControllerType.SparkMax, 5, true);
+    var conveyorData = new ConveyorData();
+    var conveyorDataInternal = new ConveyorDataInternal();
 
-    var towerConveyorEncoder = new Encoder(2, 3);
-    var towerConveyorPID = new SimplePID(0.001, 0, 0, "TowerConveyor");
+    conveyorData.VerticalMotor = new MotorController(MotorControllerType.SparkMax, 5, true);
+    conveyorData.VerticalController = new SimplePID(0.001, 0, 0, "TowerConveyor");
+    conveyorData.VerticalEncoder = new Encoder(2, 3);
 
-    var conveyor = new ConveyorBelt(towerConveyorMotor, towerConveyorPID, towerConveyorEncoder);
+    AddComponent("Conveyor", new ConveyorBelt(conveyorData, conveyorDataInternal));
 
     //Feeder
-    var feederAngleMotor = new MotorController(MotorControllerType.SparkMax, 10, true);
-    feederAngleMotor.SetInverted(true);
+    var feederData = new FeederData();
+    var feederDataInternal = new FeederDataInternal();
 
-    var feeder = new Feeder(feederAngleMotor);
+    feederData.AngleMotor = new MotorController(MotorControllerType.SparkMax, 10, true);
+    feederData.AngleMotor.SetInverted(true);
 
-    AddComponent("Swerve", swerve);
-    AddComponent("Shooter", shooter);
-    AddComponent("Conveyor", conveyor);
-    AddComponent("Feeder", feeder);
+    AddComponent("Feeder", new Feeder(feederData, feederDataInternal));   
   }
 
   public void CreateInput()

@@ -1,20 +1,20 @@
 package frc.robot.System;
 
-import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiDigitalInput;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
-import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
+import frc.robot.System.Data.FeederData;
+import frc.robot.System.Data.Internal.FeederDataInternal;
 
 public class Feeder implements Component
 {
-    public Feeder(MotorController feederAngleMotor)
+    public Feeder(FeederData data, FeederDataInternal dataInternal)
     {
-        _feederAngleMotor = feederAngleMotor;
+        Data = data;
+        DataInternal = dataInternal;
     }
 
-    private MotorController _feederAngleMotor;
-
-    private MultiDigitalInput _limitSwitches;
+    public FeederData Data;
+    public FeederDataInternal DataInternal;
 
     @Override
     public void Awake() 
@@ -38,15 +38,15 @@ public class Feeder implements Component
     {
         if (Input.GetButton("FeederUpAnalog"))
         {
-            _feederAngleMotor.Set(0.25);
+            Data.AngleMotor.Set(0.25);
         }
         else if (Input.GetButton("FeederDownAnalog"))
         {
-            _feederAngleMotor.Set(-0.20);
+            Data.AngleMotor.Set(-0.20);
         }
         else
         {
-            _feederAngleMotor.Set(0);
+            Data.AngleMotor.Set(0);
         }
     }
 }
