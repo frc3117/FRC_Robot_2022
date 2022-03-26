@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Library.FRC_3117_Tools.RobotBase;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve;
+import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiDigitalInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.WheelData;
@@ -15,10 +16,13 @@ import frc.robot.Library.FRC_3117_Tools.Component.Data.Tupple.Pair;
 import frc.robot.Library.FRC_3117_Tools.Component.FRC_Robot_Server.RobotServerClient;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117_Tools.Math.SimplePID;
+import frc.robot.System.Climber;
 import frc.robot.System.Feeder;
 import frc.robot.System.Shooter;
+import frc.robot.System.Data.ClimberData;
 import frc.robot.System.Data.FeederData;
 import frc.robot.System.Data.ShooterData;
+import frc.robot.System.Data.Internal.ClimberDataInternal;
 import frc.robot.System.Data.Internal.FeederDataInternal;
 import frc.robot.System.Data.Internal.ShooterDataInternal;
 import frc.robot.Wrapper.ADIS16448_IMU_Gyro;
@@ -35,6 +39,7 @@ public class Robot extends RobotBase {
   public static AutonomousMode currentAutonomous;
 
   private SendableChooser<AutonomousMode> _autoChooser;
+  private MultiDigitalInputCAN _digitalInputs;
 
   @Override
   public void robotInit()
@@ -59,6 +64,8 @@ public class Robot extends RobotBase {
         System.out.println(x.Data);
       });
     });
+
+    _digitalInputs = new MultiDigitalInputCAN(1);
 
     super.robotInit();
   }
@@ -113,7 +120,24 @@ public class Robot extends RobotBase {
     feederData.AngleMotor = new MotorController(MotorControllerType.SparkMax, 10, true);
     feederData.AngleMotor.SetInverted(true);
 
-    AddComponent("Feeder", new Feeder(feederData, feederDataInternal));   
+    AddComponent("Feeder", new Feeder(feederData, feederDataInternal));  
+    
+    //Climber
+    var climberData = new ClimberData();
+    var climberDataInternal = new ClimberDataInternal();
+
+    climberData.FixedArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 99, true);
+    climberData.MovingArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 98, true);
+    climberData.MovingArmAngleMotor = new MotorController(MotorControllerType.SparkMax, 97, true);
+
+    climberData.FixedArmFrontLeftSwitch = _digitalInputs.GetDigitalInput(0);
+    climberData.FixedArmRearLeftSwitch = _digitalInputs.GetDigitalInput(1);
+    climberData.FixedArmFrontRightSwitch = _digitalInputs.GetDigitalInput(2);
+    climberData.FixedArmRearRightSwitch = _digitalInputs.GetDigitalInput(3);
+    climberData.MovingArmLeftSwitch = _digitalInputs.GetDigitalInput(4);
+    climberData.MovingArmRightSwitch = _digitalInputs.GetDigitalInput(5);
+
+    AddComponent("Climber", new Climber(climberData, climberDataInternal));
   }
 
   @Override
@@ -142,5 +166,17 @@ public class Robot extends RobotBase {
 
     Input.CreateButton("ClimberSequence", 0, 10);
     Input.CreateButton("ClimberSequenceSafe", 1, 10);
+  }
+
+  @Override
+  public void Init()
+  {
+    super.Init();
+  }
+
+  @Override
+  public void ComponentLoop()
+  {
+    super.ComponentLoop();
   }
 }
