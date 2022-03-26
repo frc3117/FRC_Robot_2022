@@ -27,8 +27,7 @@ public class Robot extends RobotBase {
 
   public enum AutonomousMode
   {
-    Test,
-    Test2
+    
   }
 
   public static Robot instance;
