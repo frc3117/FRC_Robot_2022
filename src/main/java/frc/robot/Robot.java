@@ -126,9 +126,9 @@ public class Robot extends RobotBase {
     var climberData = new ClimberData();
     var climberDataInternal = new ClimberDataInternal();
 
-    climberData.FixedArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 99, true);
-    climberData.MovingArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 98, true);
-    climberData.MovingArmAngleMotor = new MotorController(MotorControllerType.SparkMax, 97, true);
+    climberData.FixedArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 30, true);
+    climberData.MovingArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 31, true);
+    climberData.MovingArmAngleMotor = new MotorController(MotorControllerType.SparkMax, 32, true);
 
     climberData.FixedArmFrontLeftSwitch = _digitalInputs.GetDigitalInput(0);
     climberData.FixedArmRearLeftSwitch = _digitalInputs.GetDigitalInput(1);
@@ -177,6 +177,8 @@ public class Robot extends RobotBase {
   @Override
   public void ComponentLoop()
   {
+    serverClient.FeedData("digitalInputs", _digitalInputs.GetValues());
+
     super.ComponentLoop();
   }
 }
