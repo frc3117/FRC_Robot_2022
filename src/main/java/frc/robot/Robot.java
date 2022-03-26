@@ -1,15 +1,12 @@
 package frc.robot;
 
-import java.util.LinkedHashMap;
-
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Library.FRC_3117_Tools.RobotBase;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
-import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.WheelData;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController.MotorControllerType;
@@ -17,25 +14,21 @@ import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorControllerGroup;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Tupple.Pair;
 import frc.robot.Library.FRC_3117_Tools.Component.FRC_Robot_Server.RobotServerClient;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve.DrivingMode;
-import frc.robot.Library.FRC_3117_Tools.Interface.Component;
 import frc.robot.Library.FRC_3117_Tools.Math.SimplePID;
-import frc.robot.Library.FRC_3117_Tools.Math.Timer;
-import frc.robot.System.ConveyorBelt;
 import frc.robot.System.Feeder;
 import frc.robot.System.Shooter;
-import frc.robot.System.Data.ConveyorData;
 import frc.robot.System.Data.FeederData;
 import frc.robot.System.Data.ShooterData;
-import frc.robot.System.Data.Internal.ConveyorDataInternal;
 import frc.robot.System.Data.Internal.FeederDataInternal;
 import frc.robot.System.Data.Internal.ShooterDataInternal;
 import frc.robot.Wrapper.ADIS16448_IMU_Gyro;
 
-public class Robot extends TimedRobot {
+public class Robot extends RobotBase {
 
   public enum AutonomousMode
   {
-
+    Test,
+    Test2
   }
 
   public static Robot instance;
@@ -43,8 +36,6 @@ public class Robot extends TimedRobot {
   public static AutonomousMode currentAutonomous;
 
   private SendableChooser<AutonomousMode> _autoChooser;
-  private LinkedHashMap<String, Component> _componentList;
-  private boolean _hasBeenInit;
 
   @Override
   public void robotInit()
@@ -52,21 +43,12 @@ public class Robot extends TimedRobot {
     instance = this;
 
     _autoChooser = new SendableChooser<>();
-    _componentList = new LinkedHashMap<>();
-    _hasBeenInit = false;
 
     for(var mode : AutonomousMode.values())
     {
       _autoChooser.addOption(mode.toString(), mode);
     }
     SmartDashboard.putData("AutonomousSelector", _autoChooser);
-
-    CreateInput();
-    CreateComponentInstance();
-    for(var component : _componentList.values())
-    {
-      component.Awake();
-    }
     
     serverClient = new RobotServerClient("10.31.17.14");
     serverClient.Connect(() -> 
@@ -78,71 +60,15 @@ public class Robot extends TimedRobot {
         System.out.println(x.Data);
       });
     });
+
+    super.robotInit();
   }
 
   @Override
-  public void robotPeriodic() 
-  {
-
-  }
-
-  @Override
-  public void autonomousInit() 
-  {
-    currentAutonomous = _autoChooser.getSelected();
-
-    Init();
-  }
-
-  @Override
-  public void autonomousPeriodic() 
-  {
-    ComponentLoop();
-  }
-
-  @Override
-  public void teleopInit() 
-  {
-    if(!_hasBeenInit)
-    {
-      Init();
-    }
-
-    //Reset the init state for the next time the robot is eneabled
-    _hasBeenInit = false;
-  }
-
-  @Override
-  public void teleopPeriodic() 
-  {
-    ComponentLoop();
-  }
-
-  @Override
-  public void disabledInit()
-  {
-    Timer.ClearEvents();
-
-    for(var component : _componentList.values())
-    {
-      component.Disabled();
-    }
-  }
-
-  @Override
-  public void disabledPeriodic() 
-  {
-    
-  }
-
-  @Override
-  public void testPeriodic() 
-  {
-
-  }
-
   public void CreateComponentInstance()
   {
+    super.CreateComponentInstance();
+
     //Swerve
     var wheelsData = new WheelData[] 
     {
@@ -180,16 +106,6 @@ public class Robot extends TimedRobot {
     shooterData.DirectionController = new SimplePID(0.03, 0, 0.002, "Direction");
 
     AddComponent("Shooter", new Shooter(shooterData, shooterDataInternal));
-    
-    //Conveyor
-    var conveyorData = new ConveyorData();
-    var conveyorDataInternal = new ConveyorDataInternal();
-
-    conveyorData.VerticalMotor = new MotorController(MotorControllerType.SparkMax, 5, true);
-    conveyorData.VerticalController = new SimplePID(0.001, 0, 0, "TowerConveyor");
-    conveyorData.VerticalEncoder = new Encoder(2, 3);
-
-    AddComponent("Conveyor", new ConveyorBelt(conveyorData, conveyorDataInternal));
 
     //Feeder
     var feederData = new FeederData();
@@ -201,8 +117,11 @@ public class Robot extends TimedRobot {
     AddComponent("Feeder", new Feeder(feederData, feederDataInternal));   
   }
 
+  @Override
   public void CreateInput()
   {
+    super.CreateInput();
+
     Input.CreateAxis("Horizontal", 0, 0, false);
     Input.CreateAxis("Vertical", 0, 1, true);
     Input.CreateAxis("Rotation", 0, 2, false);
@@ -216,55 +135,13 @@ public class Robot extends TimedRobot {
     Input.CreateButton("Shooter", 0, 1);
     Input.CreateButton("Align", 0, 2);
 
-    Input.CreateButton("ConveyorBackward", 0, 5);
-    Input.CreateButton("ConveyorForward", 0, 6);
+    Input.CreateButton("FeedBackward", 0, 5);
+    Input.CreateButton("FeedForward", 0, 6);
 
     Input.CreateButton("FeederUpAnalog", 1, 6);
     Input.CreateButton("FeederDownAnalog", 1, 5);
 
     Input.CreateButton("ClimberSequence", 0, 10);
     Input.CreateButton("ClimberSequenceSafe", 1, 10);
-  }
-
-  public void Init()
-  {
-    Timer.Init();
-    InputManager.Init();
-
-    for(var component : _componentList.values())
-    {
-      component.Init();
-    }
-
-    _hasBeenInit = true;
-  }
-
-  public void ComponentLoop()
-  {
-    Timer.Evaluate();
-    InputManager.DoInputManager();
-
-    for(var component : _componentList.values())
-    {
-      component.DoComponent();
-    }
-  }
-
-  public static void AddComponent(String name, Component component)
-  {
-    instance._componentList.put(name, component);
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <T> T GetComponent(String name)
-  {
-    try
-    {
-      return (T)instance._componentList.get(name);
-    }
-    catch (Exception ex)
-    {
-      return null;
-    }
   }
 }

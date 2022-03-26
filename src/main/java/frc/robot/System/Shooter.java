@@ -29,7 +29,7 @@ public class Shooter implements Component
     {
         Data.SpeedMotorGroup.SetBrake(false);
 
-        DataInternal.Swerve = Robot.GetComponent("Swerve");
+        DataInternal.Swerve = Robot.instance.GetComponent("Swerve");
     }
 
     @Override
