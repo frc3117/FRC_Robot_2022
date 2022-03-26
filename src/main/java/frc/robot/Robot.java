@@ -167,7 +167,6 @@ public class Robot extends TimedRobot {
 
     shooterData.SpeedMotorGroup = new MotorControllerGroup();
     shooterData.SpeedMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax, 6, true));
-    shooterData.SpeedMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax, 4, true));
 
     shooterData.IntakeMotor = new MotorController(MotorControllerType.TalonSRX, 3, false);
     shooterData.IntakeMotor.SetInverted(true);
@@ -222,6 +221,9 @@ public class Robot extends TimedRobot {
 
     Input.CreateButton("FeederUpAnalog", 1, 6);
     Input.CreateButton("FeederDownAnalog", 1, 5);
+
+    Input.CreateButton("ClimberSequence", 0, 10);
+    Input.CreateButton("ClimberSequenceSafe", 1, 10);
   }
 
   public void Init()
