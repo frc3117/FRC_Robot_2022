@@ -6,6 +6,7 @@ import frc.robot.Library.FRC_3117_Tools.Component.LimeLight;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117_Tools.Debug.CsvLogger;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
+import frc.robot.Library.FRC_3117_Tools.Math.Mathf;
 import frc.robot.Library.FRC_3117_Tools.Math.MovingAverage;
 import frc.robot.System.Data.ShooterData;
 import frc.robot.System.Data.Internal.ShooterDataInternal;
@@ -116,12 +117,34 @@ public class Shooter implements Component
                 else
                     Data.IntakeMotor.Set(0);
 
-                Data.SpeedMotorGroup.Set(Data.SpeedController.Evaluate(error) * -1);
+                Data.SpeedMotorGroup.Set(Data.SpeedController.Evaluate(error));
             }
             else
             {
                 Data.SpeedMotorGroup.Set(0);
                 Data.IntakeMotor.Set(0);
+            }
+
+            if (DataInternal.ShooterTargetAngle > 0)
+            {
+                var error = DataInternal.ShooterTargetAngle - GetAngle();
+                var max = 1;
+                var min = -1;
+
+                if (Data.ShooterAngleTopLimit.GetValue())
+                {
+                    max = 0;
+                }
+                if (Data.ShooterAngleBotomLimit.GetValue())
+                {
+                    min = 0;
+                }
+
+                Data.AngleMotor.Set(Mathf.Clamp(Data.AngleController.Evaluate(error), min, max));
+            }
+            else
+            {
+                Data.AngleMotor.Set(0);
             }
         }
         else
@@ -163,6 +186,11 @@ public class Shooter implements Component
         }
     }    
 
+    public double GetAngle()
+    {
+        return 0;
+    }
+
     public void StartFeedforwardCalculator()
     {
         DataInternal.FeedforwardCalculationLogger = new CsvLogger();
@@ -188,5 +216,10 @@ public class Shooter implements Component
     public void SetShooterAngle(double targetAngle)
     {
         DataInternal.ShooterTargetAngle = targetAngle;
+    }
+
+    public void CalibrateShooter()
+    {
+        
     }
 }

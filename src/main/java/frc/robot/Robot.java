@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Library.FRC_3117_Tools.RobotBase;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve;
+import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiAnalogInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiDigitalInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
@@ -40,6 +41,7 @@ public class Robot extends RobotBase {
 
   private SendableChooser<AutonomousMode> _autoChooser;
   private MultiDigitalInputCAN _digitalInputs;
+  private MultiAnalogInputCAN _analogInputs;
 
   @Override
   public void robotInit()
@@ -66,6 +68,7 @@ public class Robot extends RobotBase {
     });
 
     _digitalInputs = new MultiDigitalInputCAN(1);
+    _analogInputs = new MultiAnalogInputCAN(2);
 
     super.robotInit();
   }
@@ -108,8 +111,12 @@ public class Robot extends RobotBase {
     shooterData.AngleMotor.SetInverted(true);
 
     shooterData.SpeedEncoder = new Encoder(0, 1);
+
+    shooterData.ShooterAngleEncoder = _analogInputs.GetAnalogInput(0);
+
     shooterData.SpeedController = new SimplePID(0.001, 0, 0, "Shooter");
     shooterData.DirectionController = new SimplePID(0.03, 0, 0.002, "Direction");
+    shooterData.AngleController = new SimplePID(0, 0, 0 ,"ShooterAngle");
 
     AddComponent("Shooter", new Shooter(shooterData, shooterDataInternal));
 
