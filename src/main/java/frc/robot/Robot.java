@@ -68,7 +68,7 @@ public class Robot extends RobotBase {
     });
 
     _digitalInputs = new MultiDigitalInputCAN(1);
-    _analogInputs = new MultiAnalogInputCAN(2);
+    _analogInputs = new MultiAnalogInputCAN(2, 1024);
 
     super.robotInit();
   }
