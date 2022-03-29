@@ -1,0 +1,3 @@
+[submodule "src/main/java/frc/robot/Library/FRC_3117_Tools"]
+	path = src/main/java/frc/robot/Library/FRC_3117_Tools
+	url = https://github.com/frc3117/FRC_3117_Tools.git
