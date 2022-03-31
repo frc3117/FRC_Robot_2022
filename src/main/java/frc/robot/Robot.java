@@ -101,7 +101,7 @@ public class Robot extends RobotBase {
     var shooterDataInternal = new ShooterDataInternal();
 
     shooterData.SpeedMotorGroup = new MotorControllerGroup();
-    shooterData.SpeedMotorGroup.AddPositiveController(new MotorController(MotorControllerType.SparkMax, 6, true));
+    shooterData.SpeedMotorGroup.AddNegativeController(new MotorController(MotorControllerType.SparkMax, 6, true));
 
     shooterData.IntakeMotor = new MotorController(MotorControllerType.TalonSRX, 3, false);
     shooterData.IntakeMotor.SetInverted(true);
@@ -110,9 +110,9 @@ public class Robot extends RobotBase {
     shooterData.AngleMotor.SetBrake(true);
     shooterData.AngleMotor.SetInverted(true);
 
-    shooterData.SpeedEncoder = new Encoder(0, 1);
+    shooterData.SpeedEncoder = new Encoder(6, 7);
 
-    shooterData.ShooterAngleEncoder = _analogInputs.GetAnalogInput(0);
+    shooterData.AngleEncoder = _analogInputs.GetAnalogInput(0);
 
     shooterData.SpeedController = new SimplePID(0.001, 0, 0, "Shooter");
     shooterData.DirectionController = new SimplePID(0.03, 0, 0.002, "Direction");
@@ -127,6 +127,8 @@ public class Robot extends RobotBase {
     feederData.AngleMotor = new MotorController(MotorControllerType.SparkMax, 10, true);
     feederData.AngleMotor.SetInverted(true);
 
+    feederData.FeedMotor = new MotorController(MotorControllerType.SparkMax, 5, true);
+
     AddComponent("Feeder", new Feeder(feederData, feederDataInternal));  
     
     //Climber
@@ -136,6 +138,9 @@ public class Robot extends RobotBase {
     climberData.FixedArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 30, true);
     climberData.MovingArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 31, true);
     climberData.MovingArmAngleMotor = new MotorController(MotorControllerType.SparkMax, 32, true);
+
+    /*climberData.FixedArmLenghtEncoder = new Encoder(0, 1, 2);
+    climberData.MovingArmLenghtEncoder = new Encoder(3, 4, 5);*/
 
     climberData.FixedArmFrontLeftSwitch = _digitalInputs.GetDigitalInput(0);
     climberData.FixedArmRearLeftSwitch = _digitalInputs.GetDigitalInput(1);

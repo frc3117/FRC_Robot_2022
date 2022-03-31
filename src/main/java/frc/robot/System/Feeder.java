@@ -48,5 +48,18 @@ public class Feeder implements Component
         {
             Data.AngleMotor.Set(0);
         }
+
+        if (Input.GetButton("FeedForward"))
+        {
+            Data.FeedMotor.Set(-0.5);
+        }
+        else if (Input.GetButton("FeedBackward"))
+        {
+            Data.FeedMotor.Set(0.5);
+        }
+        else
+        {
+            Data.FeedMotor.Set(0);
+        }
     }
 }

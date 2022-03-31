@@ -52,7 +52,7 @@ public class Shooter implements Component
     {
         var currentSpeed = (Data.SpeedEncoder.getRate() / 2048) * 60;
         SmartDashboard.putNumber("shooterRPM", currentSpeed);
-        
+
         if (InputManager.GetButtonDown("Align"))
         {
             DataInternal.IsAllign = !DataInternal.IsAllign;
@@ -67,32 +67,7 @@ public class Shooter implements Component
                 DataInternal.Swerve.OverrideRotationAxis(Data.DirectionController.Evaluate(-1 * currentLimelight.GetAngleX()));
             }
         }
-
-        /*
-        switch (_tempJoystock.getPOV())
-        {
-            //Go Up
-            case 0:
-                if (!ShooterData.ShooterAngleTopLimit.GetValue())
-                    ShooterData.AngleMotor.Set(0.25);
-                else
-                    ShooterData.AngleMotor.Set(0);
-                break;
-
-            //Go Down
-            case 180:
-                if (!ShooterData.ShooterAngleBotomLimit.GetValue())
-                    ShooterData.AngleMotor.Set(-0.17);
-                else
-                    ShooterData.AngleMotor.Set(0);
-                break;
-
-            //Nothing
-            default:
-                ShooterData.AngleMotor.Set(0);
-                break;
-        }*/
-
+        
         if (!DataInternal.IsfeedforwardCalculation)
         {
             Data.SpeedController.SetFeedForward(DataInternal.TargerRPM * 0.00015);
@@ -127,15 +102,15 @@ public class Shooter implements Component
 
             if (DataInternal.ShooterTargetAngle > 0)
             {
-                var error = DataInternal.ShooterTargetAngle - GetAngle();
+                var error = DataInternal.ShooterTargetAngle - Data.AngleEncoder.GetValueDegree();
                 var max = 1;
                 var min = -1;
 
-                if (Data.ShooterAngleTopLimit.GetValue())
+                if (Data.AngleTopLimit.GetValue())
                 {
                     max = 0;
                 }
-                if (Data.ShooterAngleBotomLimit.GetValue())
+                if (Data.AngleBotomLimit.GetValue())
                 {
                     min = 0;
                 }
@@ -185,11 +160,6 @@ public class Shooter implements Component
             Data.SpeedMotorGroup.Set(DataInternal.CurrentFeedforwardCalculation);
         }
     }    
-
-    public double GetAngle()
-    {
-        return 0;
-    }
 
     public void StartFeedforwardCalculator()
     {

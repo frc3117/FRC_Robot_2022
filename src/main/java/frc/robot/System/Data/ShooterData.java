@@ -21,8 +21,8 @@ public class ShooterData
 
     public Encoder SpeedEncoder;
 
-    public AnalogInputCAN ShooterAngleEncoder;
+    public AnalogInputCAN AngleEncoder;
 
-    public DigitalInputCAN ShooterAngleTopLimit;
-    public DigitalInputCAN ShooterAngleBotomLimit;
+    public DigitalInputCAN AngleTopLimit;
+    public DigitalInputCAN AngleBotomLimit;
 }

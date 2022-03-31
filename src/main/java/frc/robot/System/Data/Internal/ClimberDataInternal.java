@@ -6,6 +6,7 @@ public class ClimberDataInternal
 {
     public ClimberDataInternal() { }
 
+    public FunctionScheduler CalibrationSequence;
     public FunctionScheduler ClimbSequence;
     public FunctionScheduler ClimbSequenceSafe;
     public FunctionScheduler CurrentSequence;
@@ -13,6 +14,4 @@ public class ClimberDataInternal
     public double MovingArmTargetAngle;
     public double MovingArmTargetLenght;
     public double FixedArmTargetLenght;
-
-    public boolean IsCalibrating;
 }

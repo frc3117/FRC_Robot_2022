@@ -20,8 +20,13 @@ public class Climber implements Component
     @Override
     public void Awake() 
     {
+        DataInternal.CalibrationSequence = new FunctionScheduler();
         DataInternal.ClimbSequence = new FunctionScheduler();
         DataInternal.ClimbSequenceSafe = new FunctionScheduler();
+
+        CreateCalibrateSequence();
+        CreateClimbSequence();
+        CreateClimbSequenceSafe();
     }
 
     @Override
@@ -39,31 +44,19 @@ public class Climber implements Component
     @Override
     public void DoComponent() 
     {
-        if (DataInternal.IsCalibrating)
+        if (InputManager.GetButtonDown("ClimberSequence"))
         {
-            
+            StartSequence();
         }
-        else
+        else if (InputManager.GetButtonDown("ClimberSequenceSafe"))
         {
-            if (InputManager.GetButtonDown("ClimberSequence"))
-            {
-                StartSequence();
-            }
-            else if (InputManager.GetButtonDown("ClimberSequenceSafe"))
-            {
-                StartSequenceSafe();
-            }
-    
-            if (DataInternal.CurrentSequence != null)
-            {
-                DataInternal.CurrentSequence.DoComponent();
-            }
+            StartSequenceSafe();
         }
-    }
 
-    public void Calibrate()
-    {
-
+        if (DataInternal.CurrentSequence != null)
+        {
+            DataInternal.CurrentSequence.DoComponent();
+        }
     }
 
     public void SetArmLenght(boolean fixed, double lenght)
@@ -80,6 +73,15 @@ public class Climber implements Component
     public void SetArmAngle(double angle)
     {
         DataInternal.MovingArmTargetAngle = angle;
+    }
+
+    public void Calibrate()
+    {
+        if (DataInternal.CurrentSequence == null)
+        {
+            DataInternal.CurrentSequence = DataInternal.CalibrationSequence.Copy();
+            DataInternal.CurrentSequence.Start();
+        }
     }
 
     public void StartSequence()
@@ -106,5 +108,21 @@ public class Climber implements Component
             DataInternal.CurrentSequence.Stop();
             DataInternal.CurrentSequence = null;
         }
+    }
+
+    private void CreateCalibrateSequence()
+    {
+        DataInternal.CalibrationSequence.AddFunction(() ->
+        {
+            
+        });
+    }
+    private void CreateClimbSequence()
+    {
+
+    }
+    private void CreateClimbSequenceSafe()
+    {
+
     }
 }

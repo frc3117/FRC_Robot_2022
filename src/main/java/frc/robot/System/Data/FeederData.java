@@ -7,4 +7,5 @@ public class FeederData
     public FeederData() { }
 
     public MotorController AngleMotor;
+    public MotorController FeedMotor;
 }
