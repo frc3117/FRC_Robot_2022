@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Library.FRC_3117_Tools.Component.LimeLight;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
-import frc.robot.Library.FRC_3117_Tools.Debug.CsvLogger;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
 import frc.robot.Library.FRC_3117_Tools.Math.Mathf;
 import frc.robot.Library.FRC_3117_Tools.Math.MovingAverage;
@@ -18,8 +17,7 @@ public class Shooter implements Component
         Data = data;
         DataInternal = dataInternal;
 
-        DataInternal.ErrorMovingAverageFeedforward = new MovingAverage(15);
-        DataInternal.ShooterInputMovingAverage = new MovingAverage(60);
+        DataInternal.ShooterRPMAverage = new MovingAverage(15);
     }
 
     public ShooterData Data;
@@ -36,7 +34,6 @@ public class Shooter implements Component
     @Override
     public void Init() 
     {
-        DataInternal.IsfeedforwardCalculation = false;
         DataInternal.TargerRPM = 0;
         DataInternal.IsAllign = false;
     }
@@ -53,11 +50,28 @@ public class Shooter implements Component
         var currentSpeed = (Data.SpeedEncoder.getRate() / 2048) * 60;
         SmartDashboard.putNumber("shooterRPM", currentSpeed);
 
+        DataInternal.ShooterRPMAverage.Evaluate(currentSpeed);
+
+        //Handle Input
         if (InputManager.GetButtonDown("Align"))
         {
             DataInternal.IsAllign = !DataInternal.IsAllign;
+
+            /*
+            Might Be Added
+            if (DataInternal.IsAllign)
+                DataInternal.Swerve.SetCurrentMode(DrivingMode.Local);
+            else
+                DataInternal.Swerve.SetCurrentMode(DrivingMode.World);
+            */
         }
 
+        if (InputManager.GetButton("Shooter"))
+            SetShooterRPM(3000);
+        else
+            SetShooterRPM(0);
+
+        //Handle Alignment
         if (DataInternal.IsAllign)
         {
             var currentLimelight = LimeLight.GetCurrent();
@@ -67,121 +81,53 @@ public class Shooter implements Component
                 DataInternal.Swerve.OverrideRotationAxis(Data.DirectionController.Evaluate(-1 * currentLimelight.GetAngleX()));
             }
         }
-        
-        if (!DataInternal.IsfeedforwardCalculation)
+
+        //Handle Target RPM
+        if (DataInternal.TargerRPM > 0)
         {
-            Data.SpeedController.SetFeedForward(DataInternal.TargerRPM * 0.00015);
-
-            if (InputManager.GetButton("Shooter"))
-            {
-                SetShooterRPM(3000);
-                DataInternal.ShooterInputMovingAverage.Evaluate(1);
-            }
+            var error = DataInternal.TargerRPM - currentSpeed;
+        
+            if (IsShooterReady())
+                Data.IntakeMotor.Set(-0.5);
             else
-            {
-                SetShooterRPM(0);
-                DataInternal.ShooterInputMovingAverage.Evaluate(0);
-            }
-
-            if (DataInternal.TargerRPM > 0)
-            {
-                var error = DataInternal.TargerRPM - currentSpeed;
-            
-                if (DataInternal.ShooterInputMovingAverage.GetCurrent() > 0.8)
-                    Data.IntakeMotor.Set(-0.5);
-                else
-                    Data.IntakeMotor.Set(0);
-
-                Data.SpeedMotorGroup.Set(Data.SpeedController.Evaluate(error));
-            }
-            else
-            {
-                Data.SpeedMotorGroup.Set(0);
                 Data.IntakeMotor.Set(0);
-            }
 
-            if (DataInternal.ShooterTargetAngle > 0)
-            {
-                var error = DataInternal.ShooterTargetAngle - Data.AngleEncoder.GetValueDegree();
-                var max = 1;
-                var min = -1;
-
-                if (Data.AngleTopLimit.GetValue())
-                {
-                    max = 0;
-                }
-                if (Data.AngleBotomLimit.GetValue())
-                {
-                    min = 0;
-                }
-
-                Data.AngleMotor.Set(Mathf.Clamp(Data.AngleController.Evaluate(error), min, max));
-            }
-            else
-            {
-                Data.AngleMotor.Set(0);
-            }
+            Data.SpeedMotorGroup.Set(Data.SpeedController.Evaluate(error));
         }
         else
         {
-            DataInternal.FrameTotalFeedforwardCalculation++;
-            DataInternal.ErrorMovingAverageFeedforward.Evaluate(currentSpeed - DataInternal.TargerRPM);
+            Data.SpeedMotorGroup.Set(0);
+            Data.IntakeMotor.Set(0);
+        }
 
-            if (DataInternal.CurrentFeedforwardCalculation > 1)
-                DataInternal.FrameOverMaxFeedforwardCalculation++;
-            else
-                DataInternal.FrameOverMaxFeedforwardCalculation = 0;
+        //Handle Target Angle
+        if (DataInternal.ShooterTargetAngle > 0)
+        {
+            var error = DataInternal.ShooterTargetAngle - Data.AngleEncoder.GetValueDegree();
+            var max = 1;
+            var min = -1;
 
-            if ((DataInternal.CurrentFeedforwardCalculation > 1 && DataInternal.FrameOverMaxFeedforwardCalculation >= 100) || DataInternal.FrameTotalFeedforwardCalculation >= 1000)
+            if (Data.AngleTopLimit.GetValue())
             {
-                //Failed
-                DataInternal.FeedforwardCalculationLogger.SetValue("RPM", DataInternal.TargerRPM);
-                DataInternal.FeedforwardCalculationLogger.SetValue("Integral", -9999);
-
-                SetShooterRPM(DataInternal.TargerRPM + 100);
-                DataInternal.ErrorMovingAverageFeedforward.Clear();
+                max = 0;
             }
-            else if (Math.abs(DataInternal.ErrorMovingAverageFeedforward.GetCurrent()) <= 250 )
+            if (Data.AngleBotomLimit.GetValue())
             {
-                //Success
-                DataInternal.FeedforwardCalculationLogger.SetValue("RPM", DataInternal.TargerRPM);
-                DataInternal.FeedforwardCalculationLogger.SetValue("Integral", DataInternal.CurrentFeedforwardCalculation);
-
-                SetShooterRPM(DataInternal.TargerRPM + 100);
-                DataInternal.ErrorMovingAverageFeedforward.Clear();
+                min = 0;
             }
 
-            if (DataInternal.TargerRPM >= 6000)
-            {
-                StopFeedforwardCalculator();
-                return;
-            }
-
-            Data.SpeedMotorGroup.Set(DataInternal.CurrentFeedforwardCalculation);
+            Data.AngleMotor.Set(Mathf.Clamp(Data.AngleController.Evaluate(error), min, max));
+        }
+        else
+        {
+            Data.AngleMotor.Set(0);
         }
     }    
-
-    public void StartFeedforwardCalculator()
-    {
-        DataInternal.FeedforwardCalculationLogger = new CsvLogger();
-
-        DataInternal.FeedforwardCalculationLogger.AddColumn("RPM");
-        DataInternal.FeedforwardCalculationLogger.AddColumn("Integral");
-
-        DataInternal.CurrentFeedforwardCalculation = 0;
-        DataInternal.ErrorMovingAverageFeedforward.Clear();
-        DataInternal.IsfeedforwardCalculation = true;
-    }
-    public void StopFeedforwardCalculator()
-    {
-        DataInternal.FeedforwardCalculationLogger.SaveToFile("FeedforwardCalculation");
-
-        DataInternal.IsfeedforwardCalculation = false;
-    }
 
     public void SetShooterRPM(int targetRPM)
     {
         DataInternal.TargerRPM = targetRPM;
+        Data.SpeedController.SetFeedForward(DataInternal.TargerRPM * 0.000075);
     }
     public void SetShooterAngle(double targetAngle)
     {
@@ -191,5 +137,10 @@ public class Shooter implements Component
     public void CalibrateShooter()
     {
         
+    }
+
+    private boolean IsShooterReady()
+    {
+        return (Math.abs(DataInternal.ShooterRPMAverage.GetCurrent() - DataInternal.TargerRPM) / DataInternal.TargerRPM) <= 0.05;
     }
 }

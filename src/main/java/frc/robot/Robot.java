@@ -11,6 +11,8 @@ import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiDigitalInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.WheelData;
+import frc.robot.Library.FRC_3117_Tools.Component.Data.Input.XboxAxis;
+import frc.robot.Library.FRC_3117_Tools.Component.Data.Input.XboxButton;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController.MotorControllerType;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorControllerGroup;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Tupple.Pair;
@@ -157,27 +159,27 @@ public class Robot extends RobotBase {
   {
     super.CreateInput();
 
-    Input.CreateAxis("Horizontal", 0, 0, false);
-    Input.CreateAxis("Vertical", 0, 1, true);
-    Input.CreateAxis("Rotation", 0, 2, false);
+    Input.CreateAxis("Horizontal", 0, XboxAxis.LEFTX, false);
+    Input.CreateAxis("Vertical", 0, XboxAxis.LEFTY, true);
+    Input.CreateAxis("Rotation", 0, XboxAxis.LEFT_TRIGGER, false);
 
-    Input.SetAxisNegative("Rotation", 0, 3, false);
+    Input.SetAxisNegative("Rotation", 0, XboxAxis.RIGHT_TRIGGER, false);
 
     Input.SetAxisDeadzone("Horizontal", 0.15);
     Input.SetAxisDeadzone("Vertical", 0.15);
     Input.SetAxisDeadzone("Rotation", 0.15);
 
-    Input.CreateButton("Shooter", 0, 1);
-    Input.CreateButton("Align", 0, 2);
+    Input.CreateButton("Shooter", 0, XboxButton.B);
+    Input.CreateButton("Align", 0, XboxButton.A);
 
-    Input.CreateButton("FeedBackward", 0, 5);
-    Input.CreateButton("FeedForward", 0, 6);
+    Input.CreateButton("FeedBackward", 0, XboxButton.LB);
+    Input.CreateButton("FeedForward", 0, XboxButton.RB);
 
-    Input.CreateButton("FeederUpAnalog", 1, 6);
-    Input.CreateButton("FeederDownAnalog", 1, 5);
+    Input.CreateButton("FeederUpAnalog", 1, XboxButton.LB);
+    Input.CreateButton("FeederDownAnalog", 1, XboxButton.RB);
 
-    Input.CreateButton("ClimberSequence", 0, 10);
-    Input.CreateButton("ClimberSequenceSafe", 1, 10);
+    Input.CreateButton("ClimberSequence", 0, XboxButton.START);
+    Input.CreateButton("ClimberSequenceSafe", 1, XboxButton.START);
   }
 
   @Override
