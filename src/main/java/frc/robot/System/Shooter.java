@@ -36,6 +36,8 @@ public class Shooter implements Component
     {
         DataInternal.TargerRPM = 0;
         DataInternal.IsAllign = false;
+
+        CalibrateShooter();
     }
 
     @Override
@@ -56,13 +58,15 @@ public class Shooter implements Component
         {
             if (Data.AngleBotomLimit.GetValue())
             {
+                System.out.println(Data.AngleEncoder.GetValueDegree());
+
                 DataInternal.IsCalibrating = false;
                 DataInternal.ShooterAngleOffset = Data.AngleEncoder.GetValueDegree();
                 SetShooterAngle(-1);
             }
             else
             {
-                Data.AngleMotor.Set(0.5);
+                Data.AngleMotor.Set(-0.4);
                 return;
             }
         }
@@ -151,7 +155,7 @@ public class Shooter implements Component
 
     public void CalibrateShooter()
     {
-        
+        DataInternal.IsCalibrating = true;
     }
 
     private boolean IsShooterReady()

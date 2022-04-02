@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Library.FRC_3117_Tools.RobotBase;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve;
-import frc.robot.Library.FRC_3117_Tools.Component.CAN.AnalogInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiAnalogInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiDigitalInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
@@ -113,6 +112,9 @@ public class Robot extends RobotBase {
     shooterData.AngleMotor.SetBrake(true);
     shooterData.AngleMotor.SetInverted(true);
 
+    shooterData.AngleTopLimit = _digitalInputs.GetDigitalInput(0);
+    shooterData.AngleBotomLimit = _digitalInputs.GetDigitalInput(1);
+
     shooterData.SpeedEncoder = new Encoder(6, 7);
 
     shooterData.AngleEncoder = _analogInputs.GetAnalogInput(0);
@@ -193,7 +195,7 @@ public class Robot extends RobotBase {
   public void ComponentLoop()
   {
     serverClient.FeedData("digitalInputs", _digitalInputs.GetValues());
-
+    
     super.ComponentLoop();
   }
 }
