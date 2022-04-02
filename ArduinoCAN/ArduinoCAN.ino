@@ -33,7 +33,7 @@ void UnknownMessageCallback(uint32_t id, const frc::CANData& data)
 
 void setup()
 {    
-    pinMode(0, INPUT);
+    pinMode(3, INPUT);
   
     pinMode(13, INPUT_PULLUP);
     pinMode(12, INPUT_PULLUP);
@@ -41,10 +41,10 @@ void setup()
     digitalInputs.addInput(13);
     digitalInputs.addInput(12);
 
-    pwmInputs.addInput(0);
+    pwmInputs.addInput(3);
 
     Serial.begin(9600);
-
+    
     // Initialize the MCP2515. If any error values are set, initialization failed
     auto err = mcp2515.reset();
     Serial.println(err);
@@ -70,7 +70,7 @@ void setup()
     pwmCANDevice.AddToReadList();
 }
 
-unsigned long long lastSend20Ms = 0;
+unsigned long long lastSent = 0;
 
 void loop()
 {
@@ -79,9 +79,9 @@ void loop()
 
     // Writes can happen any time, this uses a periodic send
     auto now = millis();
-    if (now - lastSend20Ms > 20) {
-        // 20 ms periodic
-        lastSend20Ms = now;
+    if (now - lastSent > 20) 
+    {
+        lastSent = now;
 
         auto err = digitalCANDevice.WritePacket(digitalInputs.generatePacket(false).data, 8, 0);
 
