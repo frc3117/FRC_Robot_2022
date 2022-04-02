@@ -52,6 +52,21 @@ public class Shooter implements Component
 
         DataInternal.ShooterRPMAverage.Evaluate(currentSpeed);
 
+        if (DataInternal.IsCalibrating)
+        {
+            if (Data.AngleBotomLimit.GetValue())
+            {
+                DataInternal.IsCalibrating = false;
+                DataInternal.ShooterAngleOffset = Data.AngleEncoder.GetValueDegree();
+                SetShooterAngle(-1);
+            }
+            else
+            {
+                Data.AngleMotor.Set(0.5);
+                return;
+            }
+        }
+
         //Handle Input
         if (InputManager.GetButtonDown("Align"))
         {
@@ -103,7 +118,7 @@ public class Shooter implements Component
         //Handle Target Angle
         if (DataInternal.ShooterTargetAngle > 0)
         {
-            var error = DataInternal.ShooterTargetAngle - Data.AngleEncoder.GetValueDegree();
+            var error = DataInternal.ShooterTargetAngle - (Data.AngleEncoder.GetValueDegree() - DataInternal.ShooterAngleOffset);
             var max = 1;
             var min = -1;
 

@@ -6,14 +6,16 @@ import frc.robot.Library.FRC_3117_Tools.Math.MovingAverage;
 public class ShooterDataInternal 
 {
     public ShooterDataInternal() { }
-    
+
     public MovingAverage ShooterRPMAverage;
 
     public boolean IsAllign;
+    public boolean IsCalibrating;
 
     public int TargerRPM;
 
     public double ShooterTargetAngle;
+    public double ShooterAngleOffset;
 
     public Swerve Swerve;
 }

@@ -2,6 +2,7 @@
 #include "frc_mcp2515.h"
 #include "frc_CAN.h"
 #include "DigitalInputs.h"
+#include "PWMInputs.h"
 
 // Define the CS pin and the interrupt pin
 #define CAN_CS 53
@@ -13,10 +14,10 @@ frc::MCP2515 mcp2515{CAN_CS};
 // Create an FRC CAN Device. You can create up to 16 of these in 1 progam
 // Any more will overflow a global array
 frc::CAN digitalCANDevice{1};
-frc::CAN analogCANDevice{2};
+frc::CAN pwmCANDevice{2};
 
 frc::DigitalInputs digitalInputs;
-frc::AnalogInputs analogInputs;
+frc::PWMInputs pwmInputs;
 
 // Callback function. This will be called any time a new message is received
 // Matching one of the enabled devices.
@@ -32,13 +33,15 @@ void UnknownMessageCallback(uint32_t id, const frc::CANData& data)
 
 void setup()
 {    
+    pinMode(0, INPUT);
+  
     pinMode(13, INPUT_PULLUP);
     pinMode(12, INPUT_PULLUP);
 
     digitalInputs.addInput(13);
     digitalInputs.addInput(12);
 
-    analogInputs.addInput(A0);
+    pwmInputs.addInput(0);
 
     Serial.begin(9600);
 
@@ -64,7 +67,7 @@ void setup()
 
     // All CAN Devices must be added to the read list. Otherwise they will not be handled correctly.
     digitalCANDevice.AddToReadList();
-    analogCANDevice.AddToReadList();
+    pwmCANDevice.AddToReadList();
 }
 
 unsigned long long lastSend20Ms = 0;
@@ -82,9 +85,9 @@ void loop()
 
         auto err = digitalCANDevice.WritePacket(digitalInputs.generatePacket(false).data, 8, 0);
 
-        for (int i = 0; i < analogInputs.inputCount; i++)
+        for (int i = 0; i < pwmInputs.inputCount; i++)
         {
-            err = analogCANDevice.WritePacket(analogInputs.generatePacket(i).data, 8, i);
+            err = pwmCANDevice.WritePacket(pwmInputs.generatePacket(i).data, 4, i);
         }
     }
 }

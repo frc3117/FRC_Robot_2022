@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Library.FRC_3117_Tools.RobotBase;
 import frc.robot.Library.FRC_3117_Tools.Component.Swerve;
+import frc.robot.Library.FRC_3117_Tools.Component.CAN.AnalogInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiAnalogInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.CAN.MultiDigitalInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
@@ -70,7 +71,7 @@ public class Robot extends RobotBase {
     });
 
     _digitalInputs = new MultiDigitalInputCAN(1);
-    _analogInputs = new MultiAnalogInputCAN(2, 1024);
+    _analogInputs = new MultiAnalogInputCAN(2, 2048);
 
     super.robotInit();
   }
