@@ -28,4 +28,6 @@ public class ClimberData
     public DigitalInputCAN FixedArmRearRightSwitch;
     public DigitalInputCAN MovingArmLeftSwitch;
     public DigitalInputCAN MovingArmRightSwitch;
+    public DigitalInputCAN FixedArmBotomSwitch;
+    public DigitalInputCAN MovingArmBotomSwitch;
 }

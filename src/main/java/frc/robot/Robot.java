@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -80,6 +81,8 @@ public class Robot extends RobotBase {
   {
     super.CreateComponentInstance();
 
+    SmartDashboard.putNumber("digitalID", 0);
+
     //Swerve
     var wheelsData = new WheelData[] 
     {
@@ -134,15 +137,20 @@ public class Robot extends RobotBase {
 
     feederData.FeedMotor = new MotorController(MotorControllerType.SparkMax, 5, true);
 
+    feederData.TopLimitSwitch = _digitalInputs.GetDigitalInput(12).SetReversed(true);
+    feederData.BotomLimitSwitch = _digitalInputs.GetDigitalInput(13);
+
+    feederData.AngleEncoder = new DutyCycleEncoder(8);
+
     AddComponent("Feeder", new Feeder(feederData, feederDataInternal));  
     
     //Climber
     var climberData = new ClimberData();
     var climberDataInternal = new ClimberDataInternal();
 
-    climberData.FixedArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 30, true);
-    climberData.MovingArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 31, true);
-    climberData.MovingArmAngleMotor = new MotorController(MotorControllerType.SparkMax, 32, true);
+    climberData.FixedArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 7, true);
+    climberData.MovingArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 8, true);
+    climberData.MovingArmAngleMotor = new MotorController(MotorControllerType.SparkMax, 9, true);
 
     /*climberData.FixedArmLenghtEncoder = new Encoder(0, 1, 2);
     climberData.MovingArmLenghtEncoder = new Encoder(3, 4, 5);*/
@@ -175,6 +183,8 @@ public class Robot extends RobotBase {
     Input.CreateButton("Shooter", 0, XboxButton.B);
     Input.CreateButton("Align", 0, XboxButton.A);
 
+    Input.CreateButton("FeederToggle", 0, XboxButton.X);
+
     Input.CreateButton("FeedBackward", 0, XboxButton.LB);
     Input.CreateButton("FeedForward", 0, XboxButton.RB);
 
@@ -195,7 +205,10 @@ public class Robot extends RobotBase {
   public void ComponentLoop()
   {
     serverClient.FeedData("digitalInputs", _digitalInputs.GetValues());
-    
+
+    _analogInputs.GetValue(0);
+    //_digitalInputs.GetValues();
+
     super.ComponentLoop();
   }
 }

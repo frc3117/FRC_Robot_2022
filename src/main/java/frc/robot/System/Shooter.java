@@ -37,7 +37,7 @@ public class Shooter implements Component
         DataInternal.TargerRPM = 0;
         DataInternal.IsAllign = false;
 
-        CalibrateShooter();
+        //CalibrateShooter();
     }
 
     @Override

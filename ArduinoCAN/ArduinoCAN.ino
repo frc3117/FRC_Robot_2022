@@ -32,16 +32,48 @@ void UnknownMessageCallback(uint32_t id, const frc::CANData& data)
 }
 
 void setup()
-{    
-    pinMode(3, INPUT);
+{
+    pinMode(14, INPUT);         //ID  0   Shooter Angle Encoder
+    pinMode(15, INPUT);         //ID  1   Moving Arm Angle Encoder
+    pinMode(16, INPUT);         //ID  2   Feeder Angle Encoder
   
-    pinMode(13, INPUT_PULLUP);
-    pinMode(12, INPUT_PULLUP);
+    pinMode(30, INPUT_PULLUP);  // ID 0   Shooter Botom Limit
+    pinMode(31, INPUT_PULLUP);  // ID 1   Shooter Top Limit
 
-    digitalInputs.addInput(13);
-    digitalInputs.addInput(12);
+    pinMode(38, INPUT_PULLUP);  // ID 2   Moving Arm Max Limit
+    pinMode(39, INPUT_PULLUP);  // ID 3   Fixed Arm Max Limit
+  
+    pinMode(40, INPUT_PULLUP);  // ID 4   Fixed Arm Rear Right Switch
+    pinMode(41, INPUT_PULLUP);  // ID 5   Fixed Arm Front Right Switch
+    pinMode(42, INPUT_PULLUP);  // ID 6   Moving Arm Right Switch
+    pinMode(43, INPUT_PULLUP);  // ID 7   Fixed Arm Rear Left Switch
+    pinMode(44, INPUT_PULLUP);  // ID 8   Fixed Arm Front Left Switch
+    pinMode(45, INPUT_PULLUP);  // ID 9   Moving Arm Left Switch
+    pinMode(46, INPUT_PULLUP);  // ID 10  Fixed Arm Min Limit
+    pinMode(47, INPUT_PULLUP);  // ID 11  Moving Arm Min Limit
+    pinMode(48, INPUT_PULLUP);  // ID 12  Feeder Top Limit
+    pinMode(49, INPUT_PULLUP);  // ID 13  Feeder Botom Limit
+  
+    digitalInputs.addInput(30);
+    digitalInputs.addInput(31);
 
-    pwmInputs.addInput(3);
+    digitalInputs.addInput(38);
+    digitalInputs.addInput(39);
+
+    digitalInputs.addInput(40);
+    digitalInputs.addInput(41);
+    digitalInputs.addInput(42);
+    digitalInputs.addInput(43);
+    digitalInputs.addInput(44);
+    digitalInputs.addInput(45);
+    digitalInputs.addInput(46);
+    digitalInputs.addInput(47);
+    digitalInputs.addInput(48);
+    digitalInputs.addInput(49);
+
+    pwmInputs.addInput(14);
+    pwmInputs.addInput(15);
+    pwmInputs.addInput(16);
 
     Serial.begin(9600);
     
@@ -83,11 +115,14 @@ void loop()
     {
         lastSent = now;
 
-        auto err = digitalCANDevice.WritePacket(digitalInputs.generatePacket(false).data, 8, 0);
+        auto digital = digitalInputs.generatePacket(false);
+        auto err = digitalCANDevice.WritePacket(digital.data, 8, 0);
 
-        for (int i = 0; i < pwmInputs.inputCount; i++)
+        Serial.println((long)digital.num);
+
+        /*for (int i = 0; i < pwmInputs.inputCount; i++)
         {
             err = pwmCANDevice.WritePacket(pwmInputs.generatePacket(i).data, 4, i);
-        }
+        }*/
     }
 }

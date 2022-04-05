@@ -112,10 +112,34 @@ public class Climber implements Component
 
     private void CreateCalibrateSequence()
     {
-        DataInternal.CalibrationSequence.AddFunction(() ->
+        /*DataInternal.CalibrationSequence.
+        AddWaituntil(() ->
         {
-            
-        });
+            var allSwitch = true;
+
+            if (Data.FixedArmBotomSwitch.GetValue())
+            {
+                Data.FixedArmLenghtMotor.Set(0);
+            }
+            else
+            {
+                Data.FixedArmLenghtMotor.Set(-0.1);
+                allSwitch = false;
+            }
+
+            if (Data.MovingArmBotomSwitch.GetValue())
+            {
+                allSwitch = allSwitch && true;
+                Data.MovingArmLenghtMotor.Set(0);
+            }
+            else
+            {
+                Data.MovingArmLenghtMotor.Set(-0.1);
+                allSwitch = false;
+            }
+
+            return true;
+        });*/
     }
     private void CreateClimbSequence()
     {
