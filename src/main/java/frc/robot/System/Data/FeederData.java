@@ -11,8 +11,7 @@ public class FeederData
     public MotorController AngleMotor;
     public MotorController FeedMotor;
 
-    public AnalogInputCAN AngleEncoder;
-
     public DigitalInputCAN TopLimitSwitch;
     public DigitalInputCAN BottomLimitSwitch;
+    public DigitalInputCAN EdgeLimitSwitch;
 }

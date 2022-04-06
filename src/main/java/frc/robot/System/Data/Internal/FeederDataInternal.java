@@ -12,6 +12,7 @@ public class FeederDataInternal
 
     public double AngleOffset;
     public double BottomAngle;
+    public double FeederSpeed;
 
     public Feeder.AngleTarget Target = AngleTarget.Up;
 }

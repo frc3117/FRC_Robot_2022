@@ -1,7 +1,6 @@
 package frc.robot.System;
 
 import frc.robot.Library.FRC_3117_Tools.Component.FunctionScheduler;
-import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
 import frc.robot.System.Data.ClimberData;

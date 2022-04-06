@@ -137,8 +137,6 @@ public class Robot extends RobotBase {
     feederData.TopLimitSwitch = _digitalInputs.GetDigitalInput(12).SetReversed(true);
     feederData.BottomLimitSwitch = _digitalInputs.GetDigitalInput(13);
 
-    feederData.AngleEncoder = _analogInputs.GetAnalogInput(2);
-
     AddComponent("Feeder", new Feeder(feederData, feederDataInternal));  
     
     //Climber
