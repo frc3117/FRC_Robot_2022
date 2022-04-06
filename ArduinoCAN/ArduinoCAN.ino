@@ -33,9 +33,9 @@ void UnknownMessageCallback(uint32_t id, const frc::CANData& data)
 
 void setup()
 {
-    pinMode(14, INPUT);         //ID  0   Shooter Angle Encoder
-    pinMode(15, INPUT);         //ID  1   Moving Arm Angle Encoder
-    pinMode(16, INPUT);         //ID  2   Feeder Angle Encoder
+    pinMode(14, INPUT);         // ID 0   Shooter Angle Encoder
+    pinMode(15, INPUT);         // ID 1   Moving Arm Angle Encoder
+    pinMode(16, INPUT);         // ID 2   Feeder Angle Encoder
   
     pinMode(30, INPUT_PULLUP);  // ID 0   Shooter Botom Limit
     pinMode(31, INPUT_PULLUP);  // ID 1   Shooter Top Limit
@@ -118,11 +118,9 @@ void loop()
         auto digital = digitalInputs.generatePacket(false);
         auto err = digitalCANDevice.WritePacket(digital.data, 8, 0);
 
-        Serial.println((long)digital.num);
-
-        /*for (int i = 0; i < pwmInputs.inputCount; i++)
+        for (int i = 0; i < pwmInputs.inputCount; i++)
         {
             err = pwmCANDevice.WritePacket(pwmInputs.generatePacket(i).data, 4, i);
-        }*/
+        }
     }
 }

@@ -56,7 +56,7 @@ public class Shooter implements Component
 
         if (DataInternal.IsCalibrating)
         {
-            if (Data.AngleBotomLimit.GetValue())
+            if (Data.AngleBottomLimit.GetValue())
             {
                 System.out.println(Data.AngleEncoder.GetValueDegree());
 
@@ -130,7 +130,7 @@ public class Shooter implements Component
             {
                 max = 0;
             }
-            if (Data.AngleBotomLimit.GetValue())
+            if (Data.AngleBottomLimit.GetValue())
             {
                 min = 0;
             }

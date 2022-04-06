@@ -34,7 +34,7 @@ public class Feeder implements Component
     @Override
     public void Init() 
     {
-       // Calibrate();
+       //Calibrate();
     }
 
     @Override
@@ -47,16 +47,33 @@ public class Feeder implements Component
     {
         if (DataInternal.IsCalibrating)
         {
-            System.out.println(GetFeederAngle());
-
-            if (!Data.TopLimitSwitch.GetValue())
+            if (DataInternal.IsCalibratingTop)
             {
-                DataInternal.AngleOffset = GetFeederAngleRaw();
-                DataInternal.IsCalibrating = false;
+                HandleUp();
 
-                System.out.println("Calibrating Over");
-                System.out.println("Offset: " + DataInternal.AngleOffset + " Current Angle: " + GetFeederAngle());
+                if (Data.TopLimitSwitch.GetValue())
+                {
+                    DataInternal.IsCalibratingTop = false;
+                    DataInternal.AngleOffset = GetFeederAngleRaw();
+    
+                    System.out.println("Offset: " + DataInternal.AngleOffset);
+                }
             }
+            else
+            {
+                HandleDown();
+
+                if (Data.BottomLimitSwitch.GetValue())
+                {
+                    DataInternal.IsCalibrating = false;
+                    DataInternal.BottomAngle = GetFeederAngle();
+
+                    System.out.println("Bottom angle: " + GetFeederAngle());
+                    System.out.println("Feeder calibration over!");
+                }
+            }
+
+            return;
         }
 
         if (InputManager.GetButtonDown("FeederToggle"))
@@ -73,18 +90,18 @@ public class Feeder implements Component
 
         if (Input.GetButton("FeedForward"))
         {
-            Data.FeedMotor.Set(-0.5);
+            Data.FeedMotor.Set(-0.75);
         }
         else if (Input.GetButton("FeedBackward"))
         {
-            Data.FeedMotor.Set(0.5);
+            Data.FeedMotor.Set(0.75);
         }
         else
         {
             Data.FeedMotor.Set(0);
         }
 
-        /*switch(DataInternal.Target)
+        switch(DataInternal.Target)
         {
             case Up:
                 HandleUp();
@@ -101,7 +118,7 @@ public class Feeder implements Component
             case Manual:
                 HandleManual();
                 break;
-        }*/
+        }
     }
 
     private double GetFeederAngle()
@@ -110,35 +127,38 @@ public class Feeder implements Component
     }
     private double GetFeederAngleRaw()
     {
-        return Data.AngleEncoder.get();
+        return Data.AngleEncoder.GetValueDegree();
     }
 
     private void Calibrate()
     {
+        System.out.println("Feeder calibration started!");
+
         DataInternal.IsCalibrating = true;
+        DataInternal.IsCalibratingTop = true;
     }
 
     private void HandleUp()
     {
-        if (!Data.TopLimitSwitch.GetValue())
+        /*if (!Data.TopLimitSwitch.GetValue())
         {
-            Data.AngleMotor.Set(0.15);
+            Data.AngleMotor.Set(0.2);
         }
         else
         {
             Data.AngleMotor.Set(0);
-        }
+        }*/
     }
     private void HandleDown()
-    {
-        if (!Data.BotomLimitSwitch.GetValue())
+    {   /*
+        if (!Data.BottomLimitSwitch.GetValue())
         {
-            Data.AngleMotor.Set(-0.15);
+            Data.AngleMotor.Set(-0.2);
         }
         else
         {
             Data.AngleMotor.Set(0);
-        }
+        }*/
     }
     private void HandleAngle()
     {

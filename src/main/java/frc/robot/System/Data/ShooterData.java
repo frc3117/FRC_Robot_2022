@@ -24,5 +24,5 @@ public class ShooterData
     public AnalogInputCAN AngleEncoder;
 
     public DigitalInputCAN AngleTopLimit;
-    public DigitalInputCAN AngleBotomLimit;
+    public DigitalInputCAN AngleBottomLimit;
 }

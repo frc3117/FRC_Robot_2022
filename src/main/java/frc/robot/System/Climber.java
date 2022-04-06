@@ -1,6 +1,7 @@
 package frc.robot.System;
 
 import frc.robot.Library.FRC_3117_Tools.Component.FunctionScheduler;
+import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
 import frc.robot.System.Data.ClimberData;
@@ -33,7 +34,11 @@ public class Climber implements Component
     public void Init() 
     {
         Calibrate();
+
+        SetArmAngle(-30);
     }
+
+    private boolean _isNegative = true;
 
     @Override
     public void Disabled() 
@@ -44,6 +49,33 @@ public class Climber implements Component
     @Override
     public void DoComponent() 
     {
+        var error = DataInternal.MovingArmTargetAngle - Data.MovingArmAngleEncoder.getDistance();
+
+        if (Math.abs(error) >= 1)
+        {
+            Data.MovingArmAngleMotor.Set(0.3 * Math.signum(error));
+        }
+        else
+        {
+            Data.MovingArmAngleMotor.Set(0);
+        }
+
+        if (InputManager.GetButtonDown("TestClimber"))
+        {
+            _isNegative = !_isNegative;
+
+            if (_isNegative)
+            {
+                SetArmAngle(-30);
+            }
+            else
+            {
+                SetArmAngle(30);
+            }
+        }
+
+        System.out.println(Data.MovingArmAngleEncoder.getDistance());
+
         if (InputManager.GetButtonDown("ClimberSequence"))
         {
             StartSequence();
@@ -77,6 +109,8 @@ public class Climber implements Component
 
     public void Calibrate()
     {
+        Data.MovingArmAngleEncoder.reset();
+
         if (DataInternal.CurrentSequence == null)
         {
             DataInternal.CurrentSequence = DataInternal.CalibrationSequence.Copy();

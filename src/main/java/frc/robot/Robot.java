@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.Vector2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -71,7 +70,7 @@ public class Robot extends RobotBase {
     });
 
     _digitalInputs = new MultiDigitalInputCAN(1);
-    _analogInputs = new MultiAnalogInputCAN(2, 2048);
+    _analogInputs = new MultiAnalogInputCAN(2, 1024);
 
     super.robotInit();
   }
@@ -80,8 +79,6 @@ public class Robot extends RobotBase {
   public void CreateComponentInstance()
   {
     super.CreateComponentInstance();
-
-    SmartDashboard.putNumber("digitalID", 0);
 
     //Swerve
     var wheelsData = new WheelData[] 
@@ -116,7 +113,7 @@ public class Robot extends RobotBase {
     shooterData.AngleMotor.SetInverted(true);
 
     shooterData.AngleTopLimit = _digitalInputs.GetDigitalInput(0);
-    shooterData.AngleBotomLimit = _digitalInputs.GetDigitalInput(1);
+    shooterData.AngleBottomLimit = _digitalInputs.GetDigitalInput(1);
 
     shooterData.SpeedEncoder = new Encoder(6, 7);
 
@@ -138,9 +135,9 @@ public class Robot extends RobotBase {
     feederData.FeedMotor = new MotorController(MotorControllerType.SparkMax, 5, true);
 
     feederData.TopLimitSwitch = _digitalInputs.GetDigitalInput(12).SetReversed(true);
-    feederData.BotomLimitSwitch = _digitalInputs.GetDigitalInput(13);
+    feederData.BottomLimitSwitch = _digitalInputs.GetDigitalInput(13);
 
-    feederData.AngleEncoder = new DutyCycleEncoder(8);
+    feederData.AngleEncoder = _analogInputs.GetAnalogInput(2);
 
     AddComponent("Feeder", new Feeder(feederData, feederDataInternal));  
     
@@ -149,18 +146,35 @@ public class Robot extends RobotBase {
     var climberDataInternal = new ClimberDataInternal();
 
     climberData.FixedArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 7, true);
+    climberData.FixedArmLenghtMotor.SetInverted(true);
+    climberData.FixedArmLenghtMotor.SetBrake(true);
+
     climberData.MovingArmLenghtMotor = new MotorController(MotorControllerType.SparkMax, 8, true);
+    climberData.MovingArmLenghtMotor.SetInverted(false);
+    climberData.MovingArmLenghtMotor.SetBrake(true);
+
     climberData.MovingArmAngleMotor = new MotorController(MotorControllerType.SparkMax, 9, true);
+    climberData.MovingArmAngleMotor.SetInverted(true);
+    climberData.MovingArmAngleMotor.SetBrake(true);
+
+    climberData.MovingArmAngleEncoder = new Encoder(8, 9);
+    climberData.MovingArmAngleEncoder.setDistancePerPulse(0.5980066 / -12.577777);
 
     /*climberData.FixedArmLenghtEncoder = new Encoder(0, 1, 2);
     climberData.MovingArmLenghtEncoder = new Encoder(3, 4, 5);*/
 
-    climberData.FixedArmFrontLeftSwitch = _digitalInputs.GetDigitalInput(0);
-    climberData.FixedArmRearLeftSwitch = _digitalInputs.GetDigitalInput(1);
-    climberData.FixedArmFrontRightSwitch = _digitalInputs.GetDigitalInput(2);
-    climberData.FixedArmRearRightSwitch = _digitalInputs.GetDigitalInput(3);
-    climberData.MovingArmLeftSwitch = _digitalInputs.GetDigitalInput(4);
-    climberData.MovingArmRightSwitch = _digitalInputs.GetDigitalInput(5);
+    climberData.FixedArmBottomSwitch = _digitalInputs.GetDigitalInput(10);
+    climberData.MovingArmBottomSwitch = _digitalInputs.GetDigitalInput(11);
+
+    climberData.FixedArmTopSwitch = _digitalInputs.GetDigitalInput(3);
+    climberData.MovingArmTopSwitch = _digitalInputs.GetDigitalInput(2);
+
+    climberData.FixedArmFrontLeftSwitch = _digitalInputs.GetDigitalInput(8);
+    climberData.FixedArmRearLeftSwitch = _digitalInputs.GetDigitalInput(7);
+    climberData.FixedArmFrontRightSwitch = _digitalInputs.GetDigitalInput(5);
+    climberData.FixedArmRearRightSwitch = _digitalInputs.GetDigitalInput(4);
+    climberData.MovingArmLeftSwitch = _digitalInputs.GetDigitalInput(9);
+    climberData.MovingArmRightSwitch = _digitalInputs.GetDigitalInput(6);
 
     AddComponent("Climber", new Climber(climberData, climberDataInternal));
   }
@@ -181,12 +195,14 @@ public class Robot extends RobotBase {
     Input.SetAxisDeadzone("Rotation", 0.15);
 
     Input.CreateButton("Shooter", 0, XboxButton.B);
-    Input.CreateButton("Align", 0, XboxButton.A);
+    Input.CreateButton("Align", 0, XboxButton.Y);
+
+    Input.CreateButton("TestClimber", 0, XboxButton.RB);
 
     Input.CreateButton("FeederToggle", 0, XboxButton.X);
 
     Input.CreateButton("FeedBackward", 0, XboxButton.LB);
-    Input.CreateButton("FeedForward", 0, XboxButton.RB);
+    Input.CreateButton("FeedForward", 0, XboxButton.A);
 
     Input.CreateButton("FeederUpAnalog", 1, XboxButton.LB);
     Input.CreateButton("FeederDownAnalog", 1, XboxButton.RB);
@@ -205,9 +221,6 @@ public class Robot extends RobotBase {
   public void ComponentLoop()
   {
     serverClient.FeedData("digitalInputs", _digitalInputs.GetValues());
-
-    _analogInputs.GetValue(0);
-    //_digitalInputs.GetValues();
 
     super.ComponentLoop();
   }

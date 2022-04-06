@@ -1,7 +1,6 @@
 package frc.robot.System.Data;
 
 import edu.wpi.first.wpilibj.Encoder;
-import frc.robot.Library.FRC_3117_Tools.Component.CAN.AnalogInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.CAN.DigitalInputCAN;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.MotorController;
 import frc.robot.Library.FRC_3117_Tools.Interface.BaseController;
@@ -20,7 +19,7 @@ public class ClimberData
 
     public Encoder FixedArmLenghtEncoder;
     public Encoder MovingArmLenghtEncoder;
-    public AnalogInputCAN MovingArmAngleEncoder;
+    public Encoder MovingArmAngleEncoder;
 
     public DigitalInputCAN FixedArmFrontLeftSwitch;
     public DigitalInputCAN FixedArmRearLeftSwitch;
@@ -28,6 +27,8 @@ public class ClimberData
     public DigitalInputCAN FixedArmRearRightSwitch;
     public DigitalInputCAN MovingArmLeftSwitch;
     public DigitalInputCAN MovingArmRightSwitch;
-    public DigitalInputCAN FixedArmBotomSwitch;
-    public DigitalInputCAN MovingArmBotomSwitch;
+    public DigitalInputCAN FixedArmBottomSwitch;
+    public DigitalInputCAN MovingArmBottomSwitch;
+    public DigitalInputCAN FixedArmTopSwitch;
+    public DigitalInputCAN MovingArmTopSwitch;
 }

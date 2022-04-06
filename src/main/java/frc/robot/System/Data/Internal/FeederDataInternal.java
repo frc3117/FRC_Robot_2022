@@ -8,8 +8,10 @@ public class FeederDataInternal
     public FeederDataInternal() { }
 
     public boolean IsCalibrating;
+    public boolean IsCalibratingTop;
 
     public double AngleOffset;
+    public double BottomAngle;
 
     public Feeder.AngleTarget Target = AngleTarget.Up;
 }
