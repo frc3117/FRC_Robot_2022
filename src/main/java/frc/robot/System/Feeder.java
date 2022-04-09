@@ -18,7 +18,8 @@ public class Feeder implements Component
     {
         Up,
         Down,
-        Manual
+        Manual,
+        Climb
     }
 
     public FeederData Data;
@@ -27,13 +28,12 @@ public class Feeder implements Component
     @Override
     public void Awake() 
     {
-
+        DataInternal.FeederSpeed = 0.4;
     }
 
     @Override
     public void Init() 
     {
-       Calibrate();
     }
 
     @Override
@@ -44,14 +44,14 @@ public class Feeder implements Component
     @Override
     public void DoComponent() 
     {
-        if (Data.EdgeLimitSwitch.GetValue())
+        /*if (Data.EdgeLimitSwitch.GetValue())
         {
             DataInternal.FeederSpeed = 0.1;
         }
         else
         {
             DataInternal.FeederSpeed = 0.3;
-        }
+        }*/
         
         if (InputManager.GetButtonDown("FeederToggle"))
         {
@@ -68,11 +68,11 @@ public class Feeder implements Component
 
         if (Input.GetButton("FeedForward"))
         {
-            Data.FeedMotor.Set(-0.75);
+            Data.FeedMotor.Set(-0.55);
         }
         else if (Input.GetButton("FeedBackward"))
         {
-            Data.FeedMotor.Set(0.75);
+            Data.FeedMotor.Set(0.55);
         }
         else
         {
@@ -97,10 +97,6 @@ public class Feeder implements Component
 
     private void Calibrate()
     {
-        System.out.println("Feeder calibration started!");
-
-        DataInternal.IsCalibrating = true;
-        DataInternal.IsCalibratingTop = true;
     }
 
     private void HandleUp()

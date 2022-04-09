@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Library.FRC_3117_Tools.Component.LimeLight;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
+import frc.robot.Library.FRC_3117_Tools.Component.Swerve.DrivingMode;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
 import frc.robot.Library.FRC_3117_Tools.Math.Mathf;
 import frc.robot.Library.FRC_3117_Tools.Math.MovingAverage;
@@ -18,6 +19,7 @@ public class Shooter implements Component
         DataInternal = dataInternal;
 
         DataInternal.ShooterRPMAverage = new MovingAverage(15);
+        DataInternal.DistanceAverager = new MovingAverage(4);
     }
 
     public ShooterData Data;
@@ -28,6 +30,9 @@ public class Shooter implements Component
     {
         Data.SpeedMotorGroup.SetBrake(false);
 
+        SmartDashboard.putNumber("ShooterRPM", 0);
+        SmartDashboard.putNumber("ShooterFeedForward", 0);
+
         DataInternal.Swerve = Robot.instance.GetComponent("Swerve");
     }
 
@@ -37,7 +42,7 @@ public class Shooter implements Component
         DataInternal.TargerRPM = 0;
         DataInternal.IsAllign = false;
 
-        //CalibrateShooter();
+        CalibrateShooter();
     }
 
     @Override
@@ -50,7 +55,7 @@ public class Shooter implements Component
     public void DoComponent()
     {
         var currentSpeed = (Data.SpeedEncoder.getRate() / 2048) * 60;
-        SmartDashboard.putNumber("shooterRPM", currentSpeed);
+        SmartDashboard.putNumber("shooterRPM", DataInternal.ShooterRPMAverage.GetCurrent());
 
         DataInternal.ShooterRPMAverage.Evaluate(currentSpeed);
 
@@ -58,11 +63,10 @@ public class Shooter implements Component
         {
             if (Data.AngleBottomLimit.GetValue())
             {
-                System.out.println(Data.AngleEncoder.GetValueDegree());
-
                 DataInternal.IsCalibrating = false;
                 DataInternal.ShooterAngleOffset = Data.AngleEncoder.GetValueDegree();
-                SetShooterAngle(-1);
+                
+                SetShooterAngle(-2);
             }
             else
             {
@@ -75,20 +79,12 @@ public class Shooter implements Component
         if (InputManager.GetButtonDown("Align"))
         {
             DataInternal.IsAllign = !DataInternal.IsAllign;
-
-            /*
-            Might Be Added
-            if (DataInternal.IsAllign)
-                DataInternal.Swerve.SetCurrentMode(DrivingMode.Local);
-            else
-                DataInternal.Swerve.SetCurrentMode(DrivingMode.World);
-            */
         }
 
-        if (InputManager.GetButton("Shooter"))
-            SetShooterRPM(3000);
-        else
-            SetShooterRPM(0);
+        if (InputManager.GetButtonDown("Shooter"))
+        {
+            Data.SpeedController.Reset();
+        }
 
         //Handle Alignment
         if (DataInternal.IsAllign)
@@ -97,9 +93,25 @@ public class Shooter implements Component
 
             if(currentLimelight.IsTarget())
             {
+                var distance = (2.56-0.85) / Math.tan(Math.toRadians((31 + currentLimelight.GetAngleY())));
+
+                DataInternal.DistanceAverager.Evaluate(distance);
+
+                SetShooterAngle(3.723 * DataInternal.DistanceAverager.GetCurrent() + 7.175);
+                DataInternal.TargerRPM = (int)((90 * DataInternal.DistanceAverager.GetCurrent() + 1110.545) * 2.2);
+                //DataInternal.TargerRPM = (int)((84.35 * DataInternal.DistanceAverager.GetCurrent() + 1110.545) * 2.2);
+
                 DataInternal.Swerve.OverrideRotationAxis(Data.DirectionController.Evaluate(-1 * currentLimelight.GetAngleX()));
             }
         }
+
+        if (InputManager.GetButton("Shooter"))
+        {
+            DataInternal.Swerve.OverrideRotationAxis(0);
+            SetShooterRPM(DataInternal.TargerRPM);
+        }
+        else
+            SetShooterRPM(0);
 
         //Handle Target RPM
         if (DataInternal.TargerRPM > 0)
@@ -122,7 +134,7 @@ public class Shooter implements Component
         //Handle Target Angle
         if (DataInternal.ShooterTargetAngle > 0)
         {
-            var error = DataInternal.ShooterTargetAngle - (Data.AngleEncoder.GetValueDegree() - DataInternal.ShooterAngleOffset);
+            var error = DataInternal.ShooterTargetAngle - GetCurrentAngle();
             var max = 1;
             var min = -1;
 
@@ -135,7 +147,14 @@ public class Shooter implements Component
                 min = 0;
             }
 
-            Data.AngleMotor.Set(Mathf.Clamp(Data.AngleController.Evaluate(error), min, max));
+            if (Math.abs(error) >= 3)
+            {
+                Data.AngleMotor.Set(Mathf.Clamp(0.35 * Math.signum(error), min, max));
+            }
+            else
+            {
+                Data.AngleMotor.Set(0);
+            }
         }
         else
         {
@@ -146,7 +165,7 @@ public class Shooter implements Component
     public void SetShooterRPM(int targetRPM)
     {
         DataInternal.TargerRPM = targetRPM;
-        Data.SpeedController.SetFeedForward(DataInternal.TargerRPM * 0.000075);
+        Data.SpeedController.SetFeedForward(0.00021  * targetRPM + 0.00976);
     }
     public void SetShooterAngle(double targetAngle)
     {
@@ -156,6 +175,11 @@ public class Shooter implements Component
     public void CalibrateShooter()
     {
         DataInternal.IsCalibrating = true;
+    }
+
+    public double GetCurrentAngle()
+    {
+        return (Data.AngleEncoder.GetValueDegree() - DataInternal.ShooterAngleOffset) / 4;
     }
 
     private boolean IsShooterReady()

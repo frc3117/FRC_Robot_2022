@@ -11,6 +11,8 @@ public class ClimberDataInternal
     public FunctionScheduler ClimbSequenceSafe;
     public FunctionScheduler CurrentSequence;
 
+    public double AngleSpeed;
+    public double LenghtSpeed;
     public double MovingArmTargetAngle;
     public double MovingArmTargetLenght;
     public double FixedArmTargetLenght;

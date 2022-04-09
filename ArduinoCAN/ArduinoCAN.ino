@@ -75,7 +75,11 @@ void setup()
     pwmInputs.addInput(15);
     pwmInputs.addInput(16);
 
-    Serial.begin(9600);
+    /*
+stty -F /dev/ttyACM0 raw 9600
+cat /dev/ttyACM0
+    */
+    Serial.begin(115200);
     
     // Initialize the MCP2515. If any error values are set, initialization failed
     auto err = mcp2515.reset();
@@ -117,6 +121,8 @@ void loop()
 
         auto digital = digitalInputs.generatePacket(false);
         auto err = digitalCANDevice.WritePacket(digital.data, 8, 0);
+
+        Serial.println((long)digital.num);
 
         for (int i = 0; i < pwmInputs.inputCount; i++)
         {
