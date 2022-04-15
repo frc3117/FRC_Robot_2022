@@ -1,5 +1,7 @@
 package frc.robot;
 
+import javax.swing.text.FlowView.FlowStrategy;
+
 import com.ctre.phoenix.CANifier;
 
 import edu.wpi.first.wpilibj.Encoder;
@@ -42,7 +44,8 @@ public class Robot extends RobotBase {
 
   public enum AutonomousMode
   {
-    
+    Nothing,
+    SimpleBackward
   }
 
   public static Robot instance;
@@ -93,6 +96,7 @@ public class Robot extends RobotBase {
   {
     super.autonomousInit();
 
+    currentAutonomous = _autoChooser.getSelected();
     ((Autonomous)GetComponent("Autonomous")).Start(currentAutonomous);
   }
 
@@ -100,6 +104,11 @@ public class Robot extends RobotBase {
   public void CreateComponentInstance()
   {
     super.CreateComponentInstance();
+
+    var autoData = new AutonomousData();
+    var autoDataInternal = new AutonomousDataInternal();
+
+    AddComponent("Autonomous", new Autonomous(autoData, autoDataInternal));
 
     //Swerve
     var wheelsData = new WheelData[] 
@@ -181,7 +190,7 @@ public class Robot extends RobotBase {
     climberData.MovingArmAngleEncoder.setDistancePerPulse(0.5980066 / -12.577777);
 
     climberData.FixedArmLenghtEncoder = new Encoder(0, 1);
-    climberData.FixedArmLenghtEncoder.setDistancePerPulse(0.64 / -27366);
+    climberData.FixedArmLenghtEncoder.setDistancePerPulse((0.64 / -27366) * 1.125);
 
     climberData.MovingArmLenghtEncoder = new Encoder(3, 4);
     climberData.MovingArmLenghtEncoder.setDistancePerPulse(0.64 / -27366);
@@ -199,12 +208,7 @@ public class Robot extends RobotBase {
     climberData.MovingArmLeftSwitch = _digitalInputs.GetDigitalInput(9);
     climberData.MovingArmRightSwitch = _digitalInputs.GetDigitalInput(6);
 
-    //AddComponent("Climber", new Climber(climberData, climberDataInternal));
-
-    var autoData = new AutonomousData();
-    var autoDataInternal = new AutonomousDataInternal();
-
-    AddComponent("Autonomous", new Autonomous(autoData, autoDataInternal));
+    AddComponent("Climber", new Climber(climberData, climberDataInternal));
   }
 
   @Override
@@ -222,21 +226,26 @@ public class Robot extends RobotBase {
     Input.SetAxisDeadzone("Vertical", 0.15);
     Input.SetAxisDeadzone("Rotation", 0.15);
 
-    Input.CreateButton("Shooter", 0, XboxButton.B);
-    Input.CreateButton("Align", 0, XboxButton.Y);
+    Input.CreateButton("Shooter", 0, XboxButton.A);
+    Input.CreateButton("Align", 0, XboxButton.B);
 
-    Input.CreateButton("FeederToggle", 0, XboxButton.X);
+    Input.CreateButton("FeederToggle", 0, XboxButton.Y);
 
     Input.CreateButton("FeedBackward", 0, XboxButton.LB);
-    Input.CreateButton("FeedForward", 0, XboxButton.A);
+    Input.CreateButton("FeedForward", 0, XboxButton.X);
 
     Input.CreateButton("FeederUpAnalog", 1, XboxButton.LB);
     Input.CreateButton("FeederDownAnalog", 1, XboxButton.RB);
 
     Input.CreateButton("ClimberSequence", 0, XboxButton.START);
-    Input.CreateButton("ClimberSetAngleTargetCurrent", 1, XboxButton.START);
+    Input.CreateButton("ClimberSequenceSafe", 1, XboxButton.START);
 
     Input.CreateButton("ClimberZeroAngle", 0, XboxButton.BACK);
+
+    Input.CreateButton("ClimberSequenceCancel", 1, XboxButton.B);
+
+    Input.CreateAxis("ClimberManual", 1, XboxAxis.LEFT_TRIGGER, true);
+    Input.SetAxisNegative("ClimberManual", 1, XboxAxis.RIGHT_TRIGGER, false);
   }
 
   @Override

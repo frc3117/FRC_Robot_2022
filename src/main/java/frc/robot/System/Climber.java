@@ -2,6 +2,7 @@ package frc.robot.System;
 
 import frc.robot.Robot;
 import frc.robot.Library.FRC_3117_Tools.Component.FunctionScheduler;
+import frc.robot.Library.FRC_3117_Tools.Component.Data.Input;
 import frc.robot.Library.FRC_3117_Tools.Component.Data.InputManager;
 import frc.robot.Library.FRC_3117_Tools.Interface.Component;
 import frc.robot.Library.FRC_3117_Tools.Math.Mathf;
@@ -61,10 +62,34 @@ public class Climber implements Component
         {
             StartSequence();
         }
-
-        if(InputManager.GetButtonDown("ClimberSetAngleTargetCurrent"))
+        if (InputManager.GetButtonDown("ClimberSequenceSafe"))
         {
-            SetArmAngle(Data.MovingArmAngleEncoder.getDistance());
+            StartSequenceSafe();
+        }
+        
+        var manualAxis = Input.GetAxis("ClimberManual") * -1;
+        if (Math.abs(manualAxis) >= 0.1)
+        {
+            StopSequence();
+
+            var min = -1;
+            var max = 1;
+
+            if (Data.MovingArmTopSwitch.GetValue())
+            {
+                max  = 0;
+            }
+            if (Data.MovingArmBottomSwitch.GetValue())
+            {
+                min = 0;
+            }
+
+            Data.MovingArmLenghtMotor.Set(Mathf.Clamp(manualAxis, min, max));
+        }
+        
+        if (InputManager.GetButtonDown("ClimberSequenceCancel"))
+        {
+            StopSequence();
         }
 
         if (InputManager.GetButtonDown("ClimberZeroAngle"))
@@ -191,7 +216,7 @@ public class Climber implements Component
         var error = DataInternal.FixedArmTargetLenght - Data.FixedArmLenghtEncoder.getDistance();
         if (!IsFixedLenghtTarget())
         {
-            Data.FixedArmLenghtMotor.Set(Mathf.Clamp(DataInternal.LenghtSpeed * Math.signum(error), min, max));
+            Data.FixedArmLenghtMotor.Set(Mathf.Clamp(DataInternal.LenghtSpeed * Math.signum(error), min, max) * -1);
         }
         else
         {
@@ -285,7 +310,7 @@ public class Climber implements Component
             }
             else
             {
-                Data.FixedArmLenghtMotor.Set(-0.3);
+                Data.FixedArmLenghtMotor.Set(0.3);
 
                 allSwitch = false;
             }
@@ -321,11 +346,16 @@ public class Climber implements Component
     }
     private void CreateClimbSequence()
     {
-        DataInternal.ClimbSequence.AddWaituntil(() ->
+        DataInternal.ClimbSequence.
+        AddFunction(() ->
+        {
+            ((Shooter)Robot.instance.GetComponent("Shooter")).Align(false);
+        }).
+        AddWaituntil(() ->
         {
             return WaitUntilLenght(ArmType.Moving, 0.7) & WaitUntilLenght(ArmType.Fixed, 0.7);
         }).
-        AddWait(5).
+        AddWait(0.5).
         AddWaituntil(() -> 
         {
             return WaitUntilLenght(ArmType.Fixed, 0.02);
@@ -375,7 +405,7 @@ public class Climber implements Component
         }).
         AddWaituntil(() ->
         {
-            SetLenghtSpeed(0.75);
+            SetLenghtSpeed(1);
             return WaitUntilLenght(ArmType.Moving, 0) & WaitUntilLenght(ArmType.Fixed, 0.7);
         }).
         AddWaituntil(() ->
@@ -400,6 +430,20 @@ public class Climber implements Component
     }
     private void CreateClimbSequenceSafe()
     {
-
+        DataInternal.ClimbSequenceSafe.AddFunction(() ->
+        {
+            ((Shooter)Robot.instance.GetComponent("Shooter")).Align(false);
+        }).
+        AddWaituntil(() ->
+        {
+            SetAngleSpeed(1);
+            return WaitUntilLenght(ArmType.Fixed, 0.7);
+        }).
+        AddWait(2).
+        AddWaituntil(() ->
+        {
+            return WaitUntilLenght(ArmType.Fixed, 0.15);
+        }).
+        AddFunction(this::StopSequence);
     }
 }

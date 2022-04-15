@@ -12,6 +12,7 @@ public class ShooterDataInternal
 
     public boolean IsAllign;
     public boolean IsCalibrating;
+    public boolean IsManualShooter;
 
     public int TargerRPM;
 

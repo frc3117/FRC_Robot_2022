@@ -42,7 +42,7 @@ public class Shooter implements Component
         DataInternal.TargerRPM = 0;
         DataInternal.IsAllign = false;
 
-        CalibrateShooter();
+        //CalibrateShooter();
     }
 
     @Override
@@ -97,15 +97,15 @@ public class Shooter implements Component
 
                 DataInternal.DistanceAverager.Evaluate(distance);
 
-                SetShooterAngle(3.723 * DataInternal.DistanceAverager.GetCurrent() + 7.175);
-                DataInternal.TargerRPM = (int)((90 * DataInternal.DistanceAverager.GetCurrent() + 1110.545) * 2.2);
+                //SetShooterAngle(3.723 * DataInternal.DistanceAverager.GetCurrent() + 7.175);
+                DataInternal.TargerRPM = (int)((143 * DataInternal.DistanceAverager.GetCurrent() + 877) * 1.95);
                 //DataInternal.TargerRPM = (int)((84.35 * DataInternal.DistanceAverager.GetCurrent() + 1110.545) * 2.2);
 
                 DataInternal.Swerve.OverrideRotationAxis(Data.DirectionController.Evaluate(-1 * currentLimelight.GetAngleX()));
             }
         }
 
-        if (InputManager.GetButton("Shooter"))
+        if (InputManager.GetButton("Shooter") || DataInternal.IsManualShooter)
         {
             DataInternal.Swerve.OverrideRotationAxis(0);
             SetShooterRPM(DataInternal.TargerRPM);
@@ -132,7 +132,7 @@ public class Shooter implements Component
         }
 
         //Handle Target Angle
-        if (DataInternal.ShooterTargetAngle > 0)
+        /*if (DataInternal.ShooterTargetAngle > 0)
         {
             var error = DataInternal.ShooterTargetAngle - GetCurrentAngle();
             var max = 1;
@@ -159,7 +159,9 @@ public class Shooter implements Component
         else
         {
             Data.AngleMotor.Set(0);
-        }
+        }*/
+
+        DataInternal.IsManualShooter = false;
     }    
 
     public void SetShooterRPM(int targetRPM)
@@ -170,6 +172,20 @@ public class Shooter implements Component
     public void SetShooterAngle(double targetAngle)
     {
         DataInternal.ShooterTargetAngle = targetAngle;
+    }
+
+    public void Align()
+    {
+        DataInternal.IsAllign = !DataInternal.IsAllign;
+    }
+    public void Align(boolean state)
+    {
+        DataInternal.IsAllign = state;
+    }
+
+    public void ManualShoot(boolean state)
+    {
+        DataInternal.IsManualShooter = state;
     }
 
     public void CalibrateShooter()
